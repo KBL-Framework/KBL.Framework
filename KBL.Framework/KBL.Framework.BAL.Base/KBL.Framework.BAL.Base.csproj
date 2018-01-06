@@ -4,4 +4,13 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="4.5.0-rc03" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.0.0-rtm-rc5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KBL.Framework.BAL.Interfaces\KBL.Framework.BAL.Interfaces.csproj" />
+  </ItemGroup>
+
 </Project>
