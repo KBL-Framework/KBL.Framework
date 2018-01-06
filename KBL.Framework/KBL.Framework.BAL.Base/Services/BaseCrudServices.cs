@@ -11,6 +11,7 @@ using System.Text;
 using KBL.Framework.BAL.Interfaces.Entities;
 using KBL.Framework.BAL.Interfaces.Services;
 using KBL.Framework.BAL.Interfaces.Mappers;
+using KBL.ExceptionManager.Model.Exceptions;
 
 namespace KBL.Framework.BAL.Base.Services
 {
