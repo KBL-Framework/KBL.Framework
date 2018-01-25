@@ -1,0 +1,132 @@
+﻿using KBL.ExceptionManager.Model;
+using Microsoft.Extensions.Logging;
+using NLog;
+using KBL.Framework.DAL.Interfaces.Entities;
+using KBL.Framework.DAL.Interfaces.Infrastructure;
+using KBL.Framework.DAL.Interfaces.Repositories;
+using KBL.Framework.DAL.Interfaces.UnitOfWork;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using KBL.Framework.BAL.Interfaces.Entities;
+using KBL.Framework.BAL.Interfaces.Services;
+using KBL.Framework.BAL.Interfaces.Mappers;
+using KBL.ExceptionManager.Model.Exceptions;
+
+namespace KBL.Framework.BAL.Base.Services
+{
+    public abstract class BaseCrudServices<DetailDto, GridDto, Entity, QueryRepository, CrudRepository, UoW, MapperFactory>
+        : IBaseCrudServices<DetailDto, GridDto>
+        where DetailDto : IDto
+        where GridDto : IDto
+        where Entity : IEntity 
+        where QueryRepository : IQueryRepository<Entity>
+        where CrudRepository : ICrudRepository<Entity>
+        where UoW : IUnitOfWork 
+        where MapperFactory : IMapperFactory 
+    {
+        #region Fields
+        protected static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        protected UoW _uow;
+        protected QueryRepository _queryRepo;
+        protected CrudRepository _crudRepo;
+        protected IMapperFactory _mapperFactory;
+        protected Type _type;
+        #endregion
+
+        #region Properties
+        #endregion
+
+        #region Cstors
+        public BaseCrudServices(IQueryRepository<Entity> queryRepository, IUnitOfWork unitOfWork, IMapperFactory mapperFactory)
+        {
+            _type = typeof(Entity);
+            _mapperFactory = mapperFactory;
+            _queryRepo = (QueryRepository)queryRepository;
+            _uow = (UoW)unitOfWork;
+            SetCrudRepository();
+        }
+        #endregion
+
+        #region Public 
+        public virtual long Create(DetailDto dto)
+        {
+            _logger.Debug($"Called Create{_type.Name}().");
+            var mapper = _mapperFactory.CreateMapperFromDetailDto();
+            var entity = mapper.Map<Entity>(dto);
+            var result = _crudRepo.Add(entity);
+            if (result.IsSuccess == ResultType.OK)
+            {
+                _logger.Info($"{_type.Name} with ID = {result.ID} was created.");
+                _uow.SaveChanges();
+                dto.ID = result.ID;
+                return result.ID;
+            }
+            throw new CreateEntityException<Entity>(result.IsSuccess.ToString());
+        }
+
+        public virtual bool Delete(DetailDto dto)
+        {
+            _logger.Debug($"Called Delete{_type.Name}() with ID = {dto.ID}.");
+            var mapper = _mapperFactory.CreateMapperFromDetailDto();
+            var entity = mapper.Map<Entity>(dto);
+            var result = _crudRepo.Delete(entity);
+            if (result.IsSuccess == ResultType.OK)
+            {
+                _logger.Info($"{_type.Name} with ID = {result.ID} was deleted.");
+                bool isSuccess = _uow.SaveChanges();
+                return isSuccess;
+            }
+            throw new DeleteEntityException<Entity>(result.IsSuccess.ToString());
+        }
+
+        public virtual DetailDto Get(long id)
+        {
+            _logger.Debug($"Called Get{_type.Name}() with ID = {id}.");
+            var result = _queryRepo.GetByKey(id);
+            if (result.IsSuccess == ResultType.OK)
+            {
+                var mapper = _mapperFactory.CreateMapperToDetailDto();
+                var dto = mapper.Map<DetailDto>(result.FirstResult);
+                _logger.Info($"{_type.Name} ID = {result.FirstResult.ID} was returned.");
+                return dto;
+            }
+            throw new GetEntityException<Entity>(result.IsSuccess.ToString());
+        }
+
+        public virtual IEnumerable<GridDto> GetAll()
+        {
+            _logger.Debug($"Called GetAll() of {_type.Name}.");
+            var result = _queryRepo.GetAll();
+            if (result.IsSuccess == ResultType.OK)
+            {
+                var mapper = _mapperFactory.CreateMapperToGridDto();
+                var dtos = mapper.Map<IEnumerable<GridDto>>(result.ResultList);
+                _logger.Info($"All {_type.Name} returned.");
+                return dtos;
+            }
+            throw new GetEntityException<Entity>(result.IsSuccess.ToString());
+        }
+
+        public virtual bool Update(DetailDto dto)
+        {
+            _logger.Debug($"Called Update{_type.Name}() with ID = {dto.ID}.");
+            var mapper = _mapperFactory.CreateMapperFromDetailDto();
+            var entity = mapper.Map<Entity>(dto);
+            var result = _crudRepo.Update(entity);
+            if (result.IsSuccess == ResultType.OK)
+            {
+                bool isSuccess = _uow.SaveChanges();
+                _logger.Info($"{_type.Name} ID = {entity.ID} updated with result {isSuccess}.");
+                return isSuccess;
+            }
+            throw new UpdateEntityException<Entity>(result.IsSuccess.ToString());
+        }
+        #endregion
+
+        #region Private methods
+        protected abstract void SetCrudRepository();
+        #endregion
+
+    }
+}
