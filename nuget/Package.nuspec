@@ -20,12 +20,7 @@
       <dependency id="Microsoft.Extensions.Configuration" version="2.0.0" />
       <dependency id="System.Data.Common" version="4.3.0" />
       <dependency id="System.Data.SqlClient" version="4.4.2" />
+      <dependency id="AutoMapper" version="6.2.2" />
     </dependencies>
-  </metadata>
-  <files>
-	  <file src="KBL.Framework\KBL.Framework.BAL.Base\bin\$configuration$\KBL.Framework.BAL.Base.dll" target="netcoreapp2.0" />
-    <file src="KBL.Framework\KBL.Framework.BAL.Base\bin\$configuration$\KBL.Framework.BAL.Interfaces.dll" target="netcoreapp2.0" />
-    <file src="KBL.Framework\KBL.Framework.BAL.Base\bin\$configuration$\KBL.Framework.DAL.Interfaces.dll" target="netcoreapp2.0" />
-    <file src="KBL.Framework\KBL.Framework.BAL.Base\bin\$configuration$\KBL.Framework.DAL.Base.dll" target="netcoreapp2.0" />
-  </files>
+  </metadata>  
 </package>

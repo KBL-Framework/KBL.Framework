@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
-namespace PharmzetISCoreDAL.Base.Queries
+namespace KBL.Framework.DAL.Base.Queries
 {
     public abstract class BaseQuery<T> : IQuery<T> where T : IEntity
     {
