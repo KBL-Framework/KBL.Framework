@@ -2,16 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AssemblyVersion>0.8.1.0</AssemblyVersion>
+    <FileVersion>0.8.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="KBL.ExceptionManager" Version="0.9.3-beta-1" />
+    <PackageReference Include="KBL.ExceptionManager" Version="0.9.3-beta00002" />
     <PackageReference Include="NLog" Version="4.5.0-rc03" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.0.0-rtm-rc5" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\KBL.Framework.BAL.Interfaces\KBL.Framework.BAL.Interfaces.csproj" />
+    <ProjectReference Include="..\KBL.Framework.DAL.Base\KBL.Framework.DAL.Base.csproj" />
   </ItemGroup>
 
 </Project>
