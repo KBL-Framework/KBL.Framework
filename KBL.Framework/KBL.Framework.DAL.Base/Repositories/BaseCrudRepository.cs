@@ -19,7 +19,6 @@ namespace KBL.Framework.DAL.Base.Repositories
         protected string _updateProcedureName = "";
         protected string _deleteProcedureName = "";
         protected IDbConnection _connection;
-        //protected string _connectionString = "";
         protected IDbTransaction _transaction;
         #endregion
 
