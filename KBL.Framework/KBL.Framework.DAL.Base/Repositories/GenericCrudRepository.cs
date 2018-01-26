@@ -10,7 +10,6 @@ namespace KBL.Framework.DAL.Base.Repositories
     public class GenericCrudRepository<T> : BaseCrudRepository<T> where T : IEntity
     {
         #region Fields
-        protected Type _type;        
         #endregion
 
         #region Properties
@@ -19,7 +18,6 @@ namespace KBL.Framework.DAL.Base.Repositories
         #region Cstors
         public GenericCrudRepository(IDbTransaction transaction, IConfiguration configuration) : base(transaction, configuration)
         {
-            _type = typeof(T);
         }
         #endregion
 
@@ -29,7 +27,6 @@ namespace KBL.Framework.DAL.Base.Repositories
         #region Private methods
         protected override void SetRepositoryMetadata()
         {
-            //_type = typeof(T);
             string type = typeof(T).Name;
             string schema = _configuration[$"{ROOT_CONFIG_PATH}:ProcedureSchema"];
             string procedureNamePattern = _configuration[$"{ROOT_CONFIG_PATH}:ProcedurePattern"];
