@@ -7,9 +7,9 @@ namespace KBL.Framework.DAL.Base.Entities
     public abstract class AuditableEntity : BaseEntity
     {
         #region Properties
-        public long CreatedBy { get; set; }
-        public long? ModifiedBy { get; set; }
-        public long? DeletedBy { get; set; }
+        public string CreatedBy { get; set; }
+        public string ModifiedBy { get; set; }
+        public string DeletedBy { get; set; }
         #endregion
     }
 }
