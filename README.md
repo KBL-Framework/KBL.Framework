@@ -5,10 +5,6 @@ Simple generic SOLID .NET Core 2.x architectural framework that will be CRUD and
 
 ___
 
-NuGet package: [https://www.nuget.org/packages/KBL.Framework/](https://www.nuget.org/packages/KBL.Framework/) 
-
-___
-
 ## Data Access Layer
 DAL is diversed for quering and manipulating (create / update / delete).
 
@@ -27,5 +23,7 @@ Base is:
 ## Business Access Layer
 
 ## Config section
-=======
+
+___
+
 NuGet package: [https://www.nuget.org/packages/KBL.Framework/](https://www.nuget.org/packages/KBL.Framework/) 

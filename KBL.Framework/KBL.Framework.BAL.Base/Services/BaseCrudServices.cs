@@ -12,6 +12,7 @@ using KBL.Framework.BAL.Interfaces.Entities;
 using KBL.Framework.BAL.Interfaces.Services;
 using KBL.Framework.BAL.Interfaces.Mappers;
 using KBL.ExceptionManager.Model.Exceptions;
+using KBL.Framework.DAL.Base.Entities;
 
 namespace KBL.Framework.BAL.Base.Services
 {
@@ -52,32 +53,33 @@ namespace KBL.Framework.BAL.Base.Services
         public virtual long Create(DetailDto dto)
         {
             _logger.Debug($"Called Create{_type.Name}().");
-            var mapper = _mapperFactory.CreateMapperFromDetailDto();
-            var entity = mapper.Map<Entity>(dto);
-            var result = _crudRepo.Add(entity);
-            if (result.IsSuccess == ResultType.OK)
+            return CreateEntity(dto);
+        }
+
+        public virtual long Create(DetailDto dto, string createdBy)
+        {
+            _logger.Debug($"Called Create{_type.Name}() by {createdBy}.");
+            if (dto is AuditableEntity)
             {
-                _logger.Info($"{_type.Name} with ID = {result.ID} was created.");
-                _uow.SaveChanges();
-                dto.ID = result.ID;
-                return result.ID;
+                (dto as AuditableEntity).CreatedBy = createdBy;
             }
-            throw new CreateEntityException<Entity>(result.IsSuccess.ToString());
+            return CreateEntity(dto);
         }
 
         public virtual bool Delete(DetailDto dto)
         {
             _logger.Debug($"Called Delete{_type.Name}() with ID = {dto.ID}.");
-            var mapper = _mapperFactory.CreateMapperFromDetailDto();
-            var entity = mapper.Map<Entity>(dto);
-            var result = _crudRepo.Delete(entity);
-            if (result.IsSuccess == ResultType.OK)
+            return DeleteEntity(dto);
+        }
+
+        public virtual bool Delete(DetailDto dto, string deletedBy)
+        {
+            _logger.Debug($"Called Delete{_type.Name}() with ID = {dto.ID} by {deletedBy}.");
+            if (dto is AuditableEntity)
             {
-                _logger.Info($"{_type.Name} with ID = {result.ID} was deleted.");
-                bool isSuccess = _uow.SaveChanges();
-                return isSuccess;
+                (dto as AuditableEntity).DeletedBy = deletedBy;
             }
-            throw new DeleteEntityException<Entity>(result.IsSuccess.ToString());
+            return DeleteEntity(dto);
         }
 
         public virtual DetailDto Get(long id)
@@ -111,6 +113,25 @@ namespace KBL.Framework.BAL.Base.Services
         public virtual bool Update(DetailDto dto)
         {
             _logger.Debug($"Called Update{_type.Name}() with ID = {dto.ID}.");
+            return UpdateEntity(dto);
+        }
+
+        public virtual bool Update(DetailDto dto, string modifiedBy)
+        {
+            _logger.Debug($"Called Update{_type.Name}() with ID = {dto.ID} by {modifiedBy}.");
+            if (dto is AuditableEntity)
+            {
+                (dto as AuditableEntity).ModifiedBy = modifiedBy;
+            }
+            return UpdateEntity(dto);
+        }
+        #endregion
+
+        #region Private methods
+        protected abstract void SetCrudRepository();
+
+        protected bool UpdateEntity(DetailDto dto)
+        {
             var mapper = _mapperFactory.CreateMapperFromDetailDto();
             var entity = mapper.Map<Entity>(dto);
             var result = _crudRepo.Update(entity);
@@ -122,10 +143,35 @@ namespace KBL.Framework.BAL.Base.Services
             }
             throw new UpdateEntityException<Entity>(result.IsSuccess.ToString());
         }
-        #endregion
 
-        #region Private methods
-        protected abstract void SetCrudRepository();
+        protected long CreateEntity(DetailDto dto)
+        {
+            var mapper = _mapperFactory.CreateMapperFromDetailDto();
+            var entity = mapper.Map<Entity>(dto);
+            var result = _crudRepo.Add(entity);
+            if (result.IsSuccess == ResultType.OK)
+            {
+                _logger.Info($"{_type.Name} with ID = {result.ID} was created.");
+                _uow.SaveChanges();
+                dto.ID = result.ID;
+                return result.ID;
+            }
+            throw new CreateEntityException<Entity>(result.IsSuccess.ToString());
+        }
+
+        protected bool DeleteEntity(DetailDto dto)
+        {
+            var mapper = _mapperFactory.CreateMapperFromDetailDto();
+            var entity = mapper.Map<Entity>(dto);
+            var result = _crudRepo.Delete(entity);
+            if (result.IsSuccess == ResultType.OK)
+            {
+                _logger.Info($"{_type.Name} with ID = {result.ID} was deleted.");
+                bool isSuccess = _uow.SaveChanges();
+                return isSuccess;
+            }
+            throw new DeleteEntityException<Entity>(result.IsSuccess.ToString());
+        }
         #endregion
 
     }
