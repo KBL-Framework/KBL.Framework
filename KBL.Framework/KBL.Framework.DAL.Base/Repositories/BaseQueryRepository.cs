@@ -190,6 +190,16 @@ namespace KBL.Framework.DAL.Base.Repositories
             }
             return data;
         }
-        #endregion
-    }
+
+        protected override void SetRepositoryMetadata()
+        {
+            _tableName = CreateTableName(typeof(T).Name);
+            _keyColumnName = _configuration[$"{ROOT_CONFIG_PATH}:PrimaryKeyColumn"];
+
+            SetQueries();
+        }
+
+        protected abstract void SetQueries();
+    #endregion
+}
 }

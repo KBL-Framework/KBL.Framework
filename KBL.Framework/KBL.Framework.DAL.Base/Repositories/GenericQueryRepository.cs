@@ -6,7 +6,7 @@ using System.Text;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
-    public abstract class GenericQueryRepository<T> : BaseQueryRepository<T> where T : IEntity
+    public class GenericQueryRepository<T> : BaseQueryRepository<T> where T : IEntity
     {
         #region Fields
         #endregion
@@ -23,15 +23,10 @@ namespace KBL.Framework.DAL.Base.Repositories
         #region Public methods
         #endregion
 
-        #region Private methods
-        protected sealed override void SetRepositoryMetadata()
-        {
-            _tableName = CreateTableName(typeof(T).Name);
-            _keyColumnName = _configuration[$"{ROOT_CONFIG_PATH}:PrimaryKeyColumn"];
-            SetQueries();
+        #region Private methods       
+        protected override void SetQueries()
+        {            
         }
-
-        protected abstract void SetQueries();
-        #endregion        
+        #endregion
     }
 }
