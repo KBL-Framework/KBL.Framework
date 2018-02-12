@@ -27,3 +27,5 @@ Base is:
 ## Business Access Layer
 
 ## Config section
+=======
+NuGet package: [https://www.nuget.org/packages/KBL.Framework/](https://www.nuget.org/packages/KBL.Framework/) 
