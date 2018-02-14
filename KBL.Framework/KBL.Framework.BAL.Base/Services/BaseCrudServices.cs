@@ -58,11 +58,7 @@ namespace KBL.Framework.BAL.Base.Services
 
         public virtual long Create(DetailDto dto, string createdBy)
         {
-            _logger.Debug($"Called Create{_type.Name}() by {createdBy}.");
-            if (dto is AuditableEntity)
-            {
-                (dto as AuditableEntity).CreatedBy = createdBy;
-            }
+            _logger.Debug($"Called Create{_type.Name}() by {createdBy}.");            
             return CreateEntity(dto);
         }
 
@@ -74,12 +70,8 @@ namespace KBL.Framework.BAL.Base.Services
 
         public virtual bool Delete(DetailDto dto, string deletedBy)
         {
-            _logger.Debug($"Called Delete{_type.Name}() with ID = {dto.ID} by {deletedBy}.");
-            if (dto is AuditableEntity)
-            {
-                (dto as AuditableEntity).DeletedBy = deletedBy;
-            }
-            return DeleteEntity(dto);
+            _logger.Debug($"Called Delete{_type.Name}() with ID = {dto.ID} by {deletedBy}.");            
+            return DeleteEntity(dto, deletedBy);
         }
 
         public virtual DetailDto Get(long id)
@@ -118,22 +110,22 @@ namespace KBL.Framework.BAL.Base.Services
 
         public virtual bool Update(DetailDto dto, string modifiedBy)
         {
-            _logger.Debug($"Called Update{_type.Name}() with ID = {dto.ID} by {modifiedBy}.");
-            if (dto is AuditableEntity)
-            {
-                (dto as AuditableEntity).ModifiedBy = modifiedBy;
-            }
-            return UpdateEntity(dto);
+            _logger.Debug($"Called Update{_type.Name}() with ID = {dto.ID} by {modifiedBy}.");            
+            return UpdateEntity(dto, modifiedBy);
         }
         #endregion
 
         #region Private methods
         protected abstract void SetCrudRepository();
 
-        protected bool UpdateEntity(DetailDto dto)
+        protected bool UpdateEntity(DetailDto dto, string modifiedBy = null)
         {
             var mapper = _mapperFactory.CreateMapperFromDetailDto();
             var entity = mapper.Map<Entity>(dto);
+            if (entity is AuditableEntity)
+            {
+                (entity as AuditableEntity).ModifiedBy = modifiedBy;
+            }
             var result = _crudRepo.Update(entity);
             if (result.IsSuccess == ResultType.OK)
             {
@@ -144,10 +136,14 @@ namespace KBL.Framework.BAL.Base.Services
             throw new UpdateEntityException<Entity>(result.IsSuccess.ToString());
         }
 
-        protected long CreateEntity(DetailDto dto)
+        protected long CreateEntity(DetailDto dto, string createdBy = null)
         {
             var mapper = _mapperFactory.CreateMapperFromDetailDto();
             var entity = mapper.Map<Entity>(dto);
+            if (entity is AuditableEntity)
+            {
+                (entity as AuditableEntity).CreatedBy = createdBy;
+            }
             var result = _crudRepo.Add(entity);
             if (result.IsSuccess == ResultType.OK)
             {
@@ -159,10 +155,14 @@ namespace KBL.Framework.BAL.Base.Services
             throw new CreateEntityException<Entity>(result.IsSuccess.ToString());
         }
 
-        protected bool DeleteEntity(DetailDto dto)
+        protected bool DeleteEntity(DetailDto dto, string deletedBy = null)
         {
             var mapper = _mapperFactory.CreateMapperFromDetailDto();
             var entity = mapper.Map<Entity>(dto);
+            if (entity is AuditableEntity)
+            {
+                (entity as AuditableEntity).DeletedBy = deletedBy;
+            }
             var result = _crudRepo.Delete(entity);
             if (result.IsSuccess == ResultType.OK)
             {

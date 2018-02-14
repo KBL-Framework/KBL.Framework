@@ -7,8 +7,8 @@ namespace KBL.Framework.DAL.Interfaces.Entities
     public interface IEntity
     {
         long ID { get; set; }
-        DateTime CreatedDateTime { get; set; }     
-        DateTime? ModifiedDateTime { get; set; }     
-        DateTime? DeletedDateTime { get; set; }     
+        DateTime CreatedDateTime { get; set; }
+        DateTime? ModifiedDateTime { get; set; }
+        DateTime? DeletedDateTime { get; set; }
     }
 }

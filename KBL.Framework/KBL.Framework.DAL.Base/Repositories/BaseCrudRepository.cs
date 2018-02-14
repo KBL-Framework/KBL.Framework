@@ -51,7 +51,7 @@ namespace KBL.Framework.DAL.Base.Repositories
                 if (entity is AuditableEntity)
                 {
                     parameters.Add($"{_dbDialectForParameter}CreatedBy", (entity as AuditableEntity).CreatedBy);
-                }
+                }                
 
                 _connection.Execute(_addProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure);
                 
