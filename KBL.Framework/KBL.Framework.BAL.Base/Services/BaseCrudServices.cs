@@ -59,7 +59,7 @@ namespace KBL.Framework.BAL.Base.Services
         public virtual long Create(DetailDto dto, string createdBy)
         {
             _logger.Debug($"Called Create{_type.Name}() by {createdBy}.");            
-            return CreateEntity(dto);
+            return CreateEntity(dto, createdBy);
         }
 
         public virtual bool Delete(DetailDto dto)
