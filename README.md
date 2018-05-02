@@ -24,6 +24,8 @@ Base is:
 
 ## Config section
 
+## Workshop 1 CZ
+ - https://youtu.be/YOIKTBo6Esk
 ___
 
 NuGet package: [https://www.nuget.org/packages/KBL.Framework/](https://www.nuget.org/packages/KBL.Framework/) 
