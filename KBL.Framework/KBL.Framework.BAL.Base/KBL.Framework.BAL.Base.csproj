@@ -8,8 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="KBL.ExceptionManager" Version="0.9.6-beta" />
-    <PackageReference Include="NLog" Version="4.5.0-rc04" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="1.0.0-rtm-rc6" />
+    <PackageReference Include="NLog" Version="4.5.8" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.2.1" />
   </ItemGroup>
 
   <ItemGroup>
