@@ -13,17 +13,14 @@
     <tags>KBL Framework Manager Exception lunacek kbl.codes CRUD dapper BAL BLL DAL DB</tags>
     <projectUrl>https://github.com/KBL-Framework/KBL.Framework</projectUrl>
     <dependencies>      
-      <dependency id="KBL.ExceptionManager" version="0.9.6-beta" />
-      <dependency id="NLog" version="4.5.0-rc04" />
-      <dependency id="NLog.Extensions.Logging" version="1.0.0-rtm-rc6" />
-      <dependency id="Dapper" version="1.50.4" />
-      <dependency id="Microsoft.Extensions.Configuration" version="2.0.0" />
+      <dependency id="KBL.ExceptionManager" version="0.9.7" />
+      <dependency id="NLog" version="4.5.8" />
+      <dependency id="NLog.Extensions.Logging" version="1.2.1" />
+      <dependency id="Dapper" version="1.50.5" />
+      <dependency id="Microsoft.Extensions.Configuration" version="2.1.1" />
       <dependency id="System.Data.Common" version="4.3.0" />
-      <dependency id="System.Data.SqlClient" version="4.4.2" />
-      <dependency id="AutoMapper" version="6.2.2" />
-      <dependency id="Microsoft.Extensions.Configuration" version="2.0.0" />
-      <dependency id="System.Data.Common" version="4.3.0" />
-      <dependency id="System.Data.SqlClient" version="4.4.2" />
+      <dependency id="System.Data.SqlClient" version="4.5.1" />
+      <dependency id="AutoMapper" version="7.0.1" />
     </dependencies>
   </metadata>  
 </package>
