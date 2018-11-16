@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using KBL.Framework.TestApi.DTOs;
+using KBL.Framework.TestApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KBL.Framework.TestApi.Controllers
@@ -10,11 +12,18 @@ namespace KBL.Framework.TestApi.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
+        private readonly IUserServices _userServices;
+
+        public UsersController(IUserServices userservices)
+        {
+            _userServices = userservices;
+        }
+
         // GET api/values
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public ActionResult<IEnumerable<UserDto>> Get()
         {
-            return new string[] { "value1", "value2" };
+            return new ObjectResult(_userServices.GetAll());
         }
 
         // GET api/values/5
@@ -32,8 +41,9 @@ namespace KBL.Framework.TestApi.Controllers
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public void Put(int id, [FromBody] UserDto value)
         {
+            _userServices.Update(value, "testor");
         }
 
         // DELETE api/values/5

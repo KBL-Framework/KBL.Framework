@@ -58,8 +58,14 @@ namespace KBL.Framework.BAL.Base.Extensions
 
         private static bool IsTableExists()
         {
-            string query = $"SELECT TOP 1 * FROM {AuditingHelper.Instance.AuditingTableName}";
-            return ExecuteReaderSQLCommand(query, new List<SqlParameter>());
+
+            string query = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = @schema AND TABLE_NAME = @table";
+            var pars = new List<SqlParameter>()
+            {
+                new SqlParameter("@schema", AuditingHelper.Instance.AuditingTableSchema),
+                new SqlParameter("@table", AuditingHelper.Instance.AuditingTableName.Replace(AuditingHelper.Instance.AuditingTableSchema+".",""))
+            };
+            return ExecuteReaderSQLCommand(query, pars);
         }
 
         private static bool CreateSchema()
