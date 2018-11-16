@@ -10,6 +10,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using KBL.Framework.DAL.Base.Entities;
+using Newtonsoft.Json;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
@@ -21,6 +22,7 @@ namespace KBL.Framework.DAL.Base.Repositories
         protected string _deleteProcedureName = "";
         protected IDbConnection _connection;
         protected IDbTransaction _transaction;
+        protected string _tableName;
         #endregion
 
         #region Properties
@@ -31,6 +33,7 @@ namespace KBL.Framework.DAL.Base.Repositories
         {
             _transaction = transaction;
             _connection = _transaction.Connection;
+            _tableName = CreateTableName(typeof(T).Name);
         }
         #endregion
 
@@ -158,7 +161,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             }
 
             return parameters;
-        }
+        }        
         #endregion
 
     }
