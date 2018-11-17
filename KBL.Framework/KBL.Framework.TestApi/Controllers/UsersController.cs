@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using KBL.Framework.BAL.Base.Entities;
 using KBL.Framework.TestApi.DTOs;
+using KBL.Framework.TestApi.Model;
 using KBL.Framework.TestApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +19,13 @@ namespace KBL.Framework.TestApi.Controllers
         public UsersController(IUserServices userservices)
         {
             _userServices = userservices;
+        }
+
+        [HttpGet]
+        [Route("history/{id}")]
+        public ActionResult<IEnumerable<EntityHistoryDto<User>>> History(long id)
+        {
+            return new ObjectResult(_userServices.GetHistory(id));
         }
 
         // GET api/values

@@ -1,4 +1,5 @@
-﻿using KBL.Framework.BAL.Base.Services;
+﻿using KBL.Framework.BAL.Base.Entities;
+using KBL.Framework.BAL.Base.Services;
 using KBL.Framework.BAL.Interfaces.Mappers;
 using KBL.Framework.DAL.Interfaces.Repositories;
 using KBL.Framework.TestApi.DAL.Repos;
@@ -17,19 +18,26 @@ namespace KBL.Framework.TestApi.Services
     public class UserServices : BaseCrudServices<UserDto, UserDto, User, IUserQueryRepository, ICrudRepository<User>, ITestUoW, IMapperFactory>, IUserServices
     {
         #region Fields
+        private readonly EntityHistoryServices _historyServices;
         #endregion
 
         #region Properties
         #endregion
 
         #region Cstors
-        public UserServices(IUserQueryRepository queryRepository, Framework.DAL.Interfaces.UnitOfWork.IUnitOfWork unitOfWork, IGenericMapperFactory<UserDto,UserDto,User> mapperFactory)
+        public UserServices(IUserQueryRepository queryRepository, Framework.DAL.Interfaces.UnitOfWork.IUnitOfWork unitOfWork, IGenericMapperFactory<UserDto, UserDto, User> mapperFactory, EntityHistoryServices historyServices)
             : base(queryRepository, unitOfWork, mapperFactory)
         {
+            _historyServices = historyServices;
         }
         #endregion
 
         #region Public methods
+        public IEnumerable<EntityHistoryDto<User>> GetHistory(long id)
+        {
+            return _historyServices.GetHistory<User>(id);
+        }
+
         #endregion
 
         #region Private methods

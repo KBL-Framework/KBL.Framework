@@ -39,6 +39,7 @@ namespace KBL.Framework.TestApi
             services.AddTransient<IUnitOfWork, TestUoW>();
             services.AddTransient<IUserQueryRepository, UserQueryRepository>();
             services.AddTransient<IUserServices, UserServices>();
+            services.AddTransient<EntityHistoryServices, EntityHistoryServices>();
 
             services.AddTransient(typeof(IQueryRepository<>), typeof(GenericQueryRepository<>));
             services.AddTransient(typeof(ICrudRepository<>), typeof(GenericCrudRepository<>));

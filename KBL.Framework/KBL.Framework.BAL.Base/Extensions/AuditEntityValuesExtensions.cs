@@ -2,6 +2,7 @@
 using KBL.Framework.DAL.Interfaces.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,7 @@ namespace KBL.Framework.BAL.Base.Extensions
             _connectionString = configuration["ConnectionStrings:DefaultConnection"];
             AuditingHelper.Instance.IsAuditingEnable = true;
             CreateDbObjects();
+            
             return builder;
         }
         #endregion
@@ -76,14 +78,19 @@ namespace KBL.Framework.BAL.Base.Extensions
 
         private static bool CreateTable()
         {
-            string sqlText = @"CREATE TABLE [logs].[AuditEntities](
-                                            [EntityID] [bigint] NOT NULL,
-                                            [TableName] [nvarchar](50) NOT NULL,
-                                            [ClassFullName] [nvarchar](250) NOT NULL,
-                                            [OldValue] [nvarchar](max) NOT NULL,
-                                            [NewValue] [nvarchar](max) NOT NULL,
-                                            [Timestamp] [datetime] NOT NULL
-                                        ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]";
+            string sqlText = $@"CREATE TABLE {AuditingHelper.Instance.AuditingTableName}(
+                                [ID] [bigint] IDENTITY(1,1) NOT NULL,
+                                [EntityID] [bigint] NOT NULL,
+                                [TableName] [nvarchar](50) NOT NULL,
+                                [ClassFullName] [nvarchar](250) NOT NULL,
+                                [OldValue] [nvarchar](max) NOT NULL,
+                                [NewValue] [nvarchar](max) NOT NULL,
+                                [CreatedDateTime] [datetime] NOT NULL,
+                             CONSTRAINT [PK_AuditEntities] PRIMARY KEY CLUSTERED 
+                            (
+                                [ID] ASC
+                            )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+                            ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]";
 
             return ExecuteSQLCommand(sqlText);
         }
@@ -144,7 +151,7 @@ namespace KBL.Framework.BAL.Base.Extensions
             stringBuilder.Append("SELECT @ID=id From INSERTED;\n");
             stringBuilder.Append("SET @tableName = '").Append(tableName).Append("';\n");
             stringBuilder.Append("SET @classFullName = '").Append(namespaceName).Append(".").Append(className).Append("';\n");
-            stringBuilder.Append("INSERT INTO [logs].[AuditEntities](EntityId, TableName, ClassFullName, OldValue, NewValue, Timestamp)\n")
+            stringBuilder.Append("INSERT INTO [logs].[AuditEntities](EntityId, TableName, ClassFullName, OldValue, NewValue, CreatedDateTime)\n")
                 .Append("VALUES(@id, @tableName, @classFullName, @oldValue, @newValue, GETUTCDATE());\n").Append("END");
 
             return ExecuteSQLCommand(stringBuilder.ToString());
