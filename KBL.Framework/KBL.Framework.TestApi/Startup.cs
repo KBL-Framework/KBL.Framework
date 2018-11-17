@@ -39,11 +39,14 @@ namespace KBL.Framework.TestApi
             services.AddTransient<IUnitOfWork, TestUoW>();
             services.AddTransient<IUserQueryRepository, UserQueryRepository>();
             services.AddTransient<IUserServices, UserServices>();
-            services.AddTransient<EntityHistoryServices, EntityHistoryServices>();
+            //services.AddTransient<EntityHistoryServices, EntityHistoryServices>();
+
+            services.AddTransient(typeof(EntityHistoryServices));
 
             services.AddTransient(typeof(IQueryRepository<>), typeof(GenericQueryRepository<>));
             services.AddTransient(typeof(ICrudRepository<>), typeof(GenericCrudRepository<>));
             services.AddTransient(typeof(IGenericMapperFactory<,,>), typeof(GenericMapperFactory<,,>));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,7 +56,7 @@ namespace KBL.Framework.TestApi
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseAuditEntityValues(Configuration);
+            app.UseAuditEntityValuesForMssql(Configuration);
             app.UseMvc();
         }
     }

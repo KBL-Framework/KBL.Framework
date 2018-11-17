@@ -22,7 +22,7 @@ namespace KBL.Framework.BAL.Base.Extensions
         #endregion
 
         #region Public methods
-        public static IApplicationBuilder UseAuditEntityValues(this IApplicationBuilder builder, IConfiguration configuration)
+        public static IApplicationBuilder UseAuditEntityValuesForMssql(this IApplicationBuilder builder, IConfiguration configuration)
         {
             _configuration = configuration;
             _connectionString = configuration["ConnectionStrings:DefaultConnection"];
