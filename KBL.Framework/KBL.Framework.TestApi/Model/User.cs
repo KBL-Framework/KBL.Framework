@@ -12,5 +12,6 @@ namespace KBL.Framework.TestApi.Model
         public string Username { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public bool IsSomething { get; set; }
     }
 }
