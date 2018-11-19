@@ -1,4 +1,4 @@
-﻿using KBL.ExceptionManager.Model.Exceptions;
+using KBL.ExceptionManager.Model.Exceptions;
 using KBL.Framework.BAL.Base.Entities;
 using KBL.Framework.BAL.Base.Infrastructures;
 using KBL.Framework.BAL.Interfaces.Services;
