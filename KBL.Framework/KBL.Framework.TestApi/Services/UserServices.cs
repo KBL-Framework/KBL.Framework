@@ -38,6 +38,16 @@ namespace KBL.Framework.TestApi.Services
             return _historyServices.GetHistory<User>(id);
         }
 
+        public void Delete(long id)
+        {
+            var item = _queryRepo.GetAllWithDeletes().ResultList.Where(x => x.ID == id).FirstOrDefault();
+            if (item != null)
+            {
+                _uow.UserRepo.Delete(item);
+                _uow.SaveChanges();
+            }
+        }
+
         #endregion
 
         #region Private methods

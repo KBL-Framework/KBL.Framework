@@ -59,6 +59,7 @@ namespace KBL.Framework.TestApi.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+            _userServices.Delete(id);
         }
     }
 }

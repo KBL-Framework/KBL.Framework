@@ -76,6 +76,10 @@ namespace KBL.Framework.DAL.Base.Repositories
             ICrudResult<T> result;
             try
             {
+                if (entity is AuditableEntity && (entity as IEntity).DeletedDateTime != null)
+                {
+                    return new CrudResult<T>(ResultType.OK);
+                }
                 var parameters = new DynamicParameters();
                 parameters.Add($"{_dbDialectForParameter}ID", entity.ID, dbType: DbType.Int64);
                 if (entity is IEntity)

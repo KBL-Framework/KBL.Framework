@@ -19,6 +19,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NLog.Web;
 
 namespace KBL.Framework.TestApi
 {
@@ -58,6 +59,7 @@ namespace KBL.Framework.TestApi
             }
             app.UseAuditEntityValuesForMssql(Configuration);
             app.UseMvc();
+            env.ConfigureNLog("nlog.config");
         }
     }
 }

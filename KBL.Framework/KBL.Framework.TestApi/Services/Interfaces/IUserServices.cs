@@ -13,5 +13,6 @@ namespace KBL.Framework.TestApi.Services.Interfaces
     public interface IUserServices : IBaseCrudServices<UserDto, UserDto>
     {
         IEnumerable<EntityHistoryDto<User>> GetHistory(long id);
+        void Delete(long id);
     }
 }
