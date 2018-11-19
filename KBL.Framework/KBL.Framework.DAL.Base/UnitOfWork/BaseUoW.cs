@@ -1,4 +1,5 @@
-﻿using KBL.Framework.DAL.Interfaces.UnitOfWork;
+﻿using KBL.Framework.DAL.Interfaces.Repositories;
+using KBL.Framework.DAL.Interfaces.UnitOfWork;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Reflection;
 using System.Text;
 
 namespace KBL.Framework.DAL.Base.UnitOfWork
@@ -101,7 +103,17 @@ namespace KBL.Framework.DAL.Base.UnitOfWork
         #endregion
 
         #region Private methods
-        protected abstract void ResetRepositories();
+        protected virtual void ResetRepositories()
+        {
+            FieldInfo[] fields = this.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var field in fields)
+            {
+                if (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(ICrudRepository<>))
+                {
+                    field.SetValue(this, null);
+                }
+            }
+        }
 
         protected IDbTransaction GetTransaction()
         {

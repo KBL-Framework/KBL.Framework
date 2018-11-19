@@ -10,6 +10,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using KBL.Framework.DAL.Base.Entities;
+using Newtonsoft.Json;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
@@ -21,6 +22,7 @@ namespace KBL.Framework.DAL.Base.Repositories
         protected string _deleteProcedureName = "";
         protected IDbConnection _connection;
         protected IDbTransaction _transaction;
+        protected string _tableName;
         #endregion
 
         #region Properties
@@ -31,6 +33,7 @@ namespace KBL.Framework.DAL.Base.Repositories
         {
             _transaction = transaction;
             _connection = _transaction.Connection;
+            _tableName = CreateTableName(typeof(T).Name);
         }
         #endregion
 
@@ -57,12 +60,12 @@ namespace KBL.Framework.DAL.Base.Repositories
                 
                 //To get newly created ID back  
                 entity.ID = parameters.Get<long>($"{_dbDialectForParameter}ID");
-                _logger.Info($"Entity {nameof(T)} ID = {entity.ID} was successfully created.");
+                _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully created.");
                 result = new CrudResult<T>(ResultType.OK, entity);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Error in CrudBaseRepository.Add()! Entity {nameof(T)}.");
+                _logger.Error(ex, $"Error in CrudBaseRepository.Add()! Entity {typeof(T).Name}.");
                 result = new CrudResult<T>(ResultType.Error);
             }
             return result;
@@ -73,6 +76,10 @@ namespace KBL.Framework.DAL.Base.Repositories
             ICrudResult<T> result;
             try
             {
+                if (entity is AuditableEntity && (entity as IEntity).DeletedDateTime != null)
+                {
+                    return new CrudResult<T>(ResultType.OK);
+                }
                 var parameters = new DynamicParameters();
                 parameters.Add($"{_dbDialectForParameter}ID", entity.ID, dbType: DbType.Int64);
                 if (entity is IEntity)
@@ -87,11 +94,11 @@ namespace KBL.Framework.DAL.Base.Repositories
                 }
                 _connection.Execute(_deleteProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure);
                 result = new CrudResult<T>(ResultType.OK);
-                _logger.Info($"Entity {nameof(T)} ID = {entity.ID} was successfully deleted.");
+                _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully deleted.");
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Error in CrudBaseRepository.Delete()! Entity {nameof(T)}.");
+                _logger.Error(ex, $"Error in CrudBaseRepository.Delete()! Entity {typeof(T).Name}.");
                 result = new CrudResult<T>(ResultType.Error);
             }
 
@@ -117,11 +124,11 @@ namespace KBL.Framework.DAL.Base.Repositories
                 }
                 _connection.Execute(_updateProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure);
                 result = new CrudResult<T>(ResultType.OK);
-                _logger.Info($"Entity {nameof(T)} ID = {entity.ID} was successfully updated.");
+                _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully updated.");
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Error in CrudBaseRepository.Update()! Entity {nameof(T)}.");
+                _logger.Error(ex, $"Error in CrudBaseRepository.Update()! Entity {typeof(T).Name}.");
                 result = new CrudResult<T>(ResultType.Error);
             }
             return result;
@@ -158,7 +165,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             }
 
             return parameters;
-        }
+        }        
         #endregion
 
     }

@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KBL.Framework.BAL.Base", "KBL.Framework.BAL.Base\KBL.Framework.BAL.Base.csproj", "{A6FCA8B6-17EE-4A72-8B61-C03B87219D3B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KBL.Framework.BAL.Base", "KBL.Framework.BAL.Base\KBL.Framework.BAL.Base.csproj", "{A6FCA8B6-17EE-4A72-8B61-C03B87219D3B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KBL.Framework.BAL.Interfaces", "KBL.Framework.BAL.Interfaces\KBL.Framework.BAL.Interfaces.csproj", "{1EFA43F3-94D9-4F06-AF9F-A46565899F86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KBL.Framework.BAL.Interfaces", "KBL.Framework.BAL.Interfaces\KBL.Framework.BAL.Interfaces.csproj", "{1EFA43F3-94D9-4F06-AF9F-A46565899F86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KBL.Framework.DAL.Interfaces", "KBL.Framework.DAL.Interfaces\KBL.Framework.DAL.Interfaces.csproj", "{F13F5735-9C42-4FBD-84FF-C9909850824B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KBL.Framework.DAL.Interfaces", "KBL.Framework.DAL.Interfaces\KBL.Framework.DAL.Interfaces.csproj", "{F13F5735-9C42-4FBD-84FF-C9909850824B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KBL.Framework.DAL.Base", "KBL.Framework.DAL.Base\KBL.Framework.DAL.Base.csproj", "{26FCFD8F-64A5-4419-BA0E-F6CE5A151EAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KBL.Framework.DAL.Base", "KBL.Framework.DAL.Base\KBL.Framework.DAL.Base.csproj", "{26FCFD8F-64A5-4419-BA0E-F6CE5A151EAA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
