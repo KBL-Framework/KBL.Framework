@@ -12,7 +12,10 @@ namespace KBL.Framework.TestApi.Services.Interfaces
 {
     public interface IUserServices : IBaseCrudServices<UserDto, UserDto>
     {
+        Task<long> CreateAsync(UserDto dto, string createdBy);
         IEnumerable<EntityHistoryDto<User>> GetHistory(long id);
-        void Delete(long id);
+        //void Delete(long id);
+        Task UpdateAsync(UserDto dto, string modifiedBy);
+        Task DeleteAsync(long id);
     }
 }

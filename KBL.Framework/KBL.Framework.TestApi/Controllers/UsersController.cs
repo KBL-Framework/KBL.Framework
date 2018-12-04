@@ -44,22 +44,24 @@ namespace KBL.Framework.TestApi.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<ActionResult> PostAsync([FromBody] UserDto value)
         {
+            var result = await _userServices.CreateAsync(value, "loskubos");
+            return result != 0 ? NoContent() : StatusCode(500);
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] UserDto value)
+        public async Task PutAsync(int id, [FromBody] UserDto value)
         {
-            _userServices.Update(value, "testor");
+           await _userServices.UpdateAsync(value, "testor");
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task DeleteAsync(int id)
         {
-            _userServices.Delete(id);
+            await _userServices.DeleteAsync(id);
         }
     }
 }

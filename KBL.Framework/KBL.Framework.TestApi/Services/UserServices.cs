@@ -1,4 +1,5 @@
-﻿using KBL.Framework.BAL.Base.Entities;
+﻿using KBL.ExceptionManager.Model.Exceptions;
+using KBL.Framework.BAL.Base.Entities;
 using KBL.Framework.BAL.Base.Services;
 using KBL.Framework.BAL.Interfaces.Mappers;
 using KBL.Framework.DAL.Interfaces.Repositories;
@@ -37,15 +38,38 @@ namespace KBL.Framework.TestApi.Services
         {
             return _historyServices.GetHistory<User>(id);
         }
-
-        public void Delete(long id)
+        public async Task<long> CreateAsync(UserDto dto, string createdBy)
+        {
+            var e = _mapperFactory.CreateMapperFromDetailDto().Map<User>(dto);
+            e.CreatedBy = createdBy;
+            var result = await _uow.UserRepo.AddAsync(e);
+            if (result.IsSuccess != Framework.DAL.Interfaces.Infrastructure.ResultType.OK)
+            {
+                throw new CreateEntityException<User>();
+            }
+            _uow.SaveChanges();
+            return e.ID;
+        }
+        public async Task DeleteAsync(long id)
         {
             var item = _queryRepo.GetAllWithDeletes().ResultList.Where(x => x.ID == id).FirstOrDefault();
             if (item != null)
             {
-                _uow.UserRepo.Delete(item);
+                await _uow.UserRepo.DeleteAsync(item);
                 _uow.SaveChanges();
             }
+        }
+
+        public async Task UpdateAsync(UserDto dto, string modifiedBy)
+        {
+            var e = _mapperFactory.CreateMapperFromDetailDto().Map<User>(dto);
+            e.ModifiedBy = modifiedBy;
+            var result = await _uow.UserRepo.UpdateAsync(e);
+            if (result.IsSuccess != Framework.DAL.Interfaces.Infrastructure.ResultType.OK)
+            {
+                throw new CreateEntityException<User>();
+            }
+            _uow.SaveChanges();
         }
 
         #endregion
