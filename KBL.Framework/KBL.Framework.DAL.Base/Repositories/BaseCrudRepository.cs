@@ -11,6 +11,8 @@ using System.Linq;
 using System.Text;
 using KBL.Framework.DAL.Base.Entities;
 using Newtonsoft.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
@@ -43,25 +45,9 @@ namespace KBL.Framework.DAL.Base.Repositories
             ICrudResult<T> result;
             try
             {
-                if (entity is IEntity)
-                {
-                    (entity as IEntity).CreatedDateTime = DateTime.UtcNow;
-                }                
-                var parameters = CreateParameters(entity);
-                parameters.Add($"{_dbDialectForParameter}ID", entity.ID, dbType: DbType.Int64, direction: ParameterDirection.InputOutput);                
-                parameters.Add($"{_dbDialectForParameter}CreatedDateTime", (entity as IEntity).CreatedDateTime);
-
-                if (entity is AuditableEntity)
-                {
-                    parameters.Add($"{_dbDialectForParameter}CreatedBy", (entity as AuditableEntity).CreatedBy);
-                }                
-
+                DynamicParameters parameters = CreateAddParams(entity);
                 _connection.Execute(_addProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure);
-                
-                //To get newly created ID back  
-                entity.ID = parameters.Get<long>($"{_dbDialectForParameter}ID");
-                _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully created.");
-                result = new CrudResult<T>(ResultType.OK, entity);
+                result = CreateAddResult(entity, parameters);
             }
             catch (Exception ex)
             {
@@ -71,28 +57,34 @@ namespace KBL.Framework.DAL.Base.Repositories
             return result;
         }
 
+        public async Task<ICrudResult<T>> AddAsync(T entity)
+        {
+            ICrudResult<T> result;
+            try
+            {
+                DynamicParameters parameters = CreateAddParams(entity);
+                var x = await _connection.ExecuteAsync(_addProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure).ConfigureAwait(false);
+                result = CreateAddResult(entity, parameters);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Error in CrudBaseRepository.Add()! Entity {typeof(T).Name}.");
+                result = new CrudResult<T>(ResultType.Error);
+            }
+            return  result;
+        }
+
         public ICrudResult<T> Delete(T entity)
         {
             ICrudResult<T> result;
             try
             {
-                if (entity is AuditableEntity && (entity as IEntity).DeletedDateTime != null)
+                if (entity is AuditableEntity && (entity as IEntity)?.DeletedDateTime != null)
                 {
                     return new CrudResult<T>(ResultType.OK);
                 }
-                var parameters = new DynamicParameters();
-                parameters.Add($"{_dbDialectForParameter}ID", entity.ID, dbType: DbType.Int64);
-                if (entity is IEntity)
-                {
-                    (entity as IEntity).DeletedDateTime = DateTime.UtcNow;
-                    parameters.Add($"{_dbDialectForParameter}DeletedDateTime", (entity as IEntity).DeletedDateTime);
-
-                }
-                if (entity is AuditableEntity)
-                {
-                    parameters.Add($"{_dbDialectForParameter}DeletedBy", (entity as AuditableEntity).DeletedBy);
-                }
-                _connection.Execute(_deleteProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure);
+                DynamicParameters parameters = CreateDeleteParams(entity);
+                _connection.Execute(_deleteProcedureName, parameters, _transaction, null, CommandType.StoredProcedure);
                 result = new CrudResult<T>(ResultType.OK);
                 _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully deleted.");
             }
@@ -101,7 +93,29 @@ namespace KBL.Framework.DAL.Base.Repositories
                 _logger.Error(ex, $"Error in CrudBaseRepository.Delete()! Entity {typeof(T).Name}.");
                 result = new CrudResult<T>(ResultType.Error);
             }
+            return result;
+        }
 
+        public async Task<ICrudResult<T>> DeleteAsync(T entity)
+        {
+
+            ICrudResult<T> result;
+            try
+            {
+                if (entity is AuditableEntity && (entity as IEntity)?.DeletedDateTime != null)
+                {
+                    return new CrudResult<T>(ResultType.OK);
+                }
+                DynamicParameters parameters = CreateDeleteParams(entity);
+                var x = await _connection.ExecuteAsync(_deleteProcedureName, parameters, _transaction, null, CommandType.StoredProcedure);
+                result = new CrudResult<T>(ResultType.OK);
+                _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully deleted.");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Error in CrudBaseRepository.Delete()! Entity {typeof(T).Name}.");
+                result = new CrudResult<T>(ResultType.Error);
+            }
             return result;
         }
 
@@ -109,20 +123,27 @@ namespace KBL.Framework.DAL.Base.Repositories
         {
             ICrudResult<T> result;
             try
-            {                
-                if (entity is IEntity)
-                {
-                    (entity as IEntity).ModifiedDateTime = DateTime.UtcNow;
-                }
-                var parameters = CreateParameters(entity);
-                parameters.Add($"{_dbDialectForParameter}ID", entity.ID, dbType: DbType.Int64, direction: ParameterDirection.InputOutput);
-                parameters.Add($"{_dbDialectForParameter}ModifiedDateTime", (entity as IEntity).ModifiedDateTime);
-                
-                if (entity is AuditableEntity)
-                {
-                    parameters.Add($"{_dbDialectForParameter}ModifiedBy", (entity as AuditableEntity).ModifiedBy);
-                }
+            {
+                DynamicParameters parameters = CreateUpdateParams(entity);
                 _connection.Execute(_updateProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure);
+                result = new CrudResult<T>(ResultType.OK);
+                _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully updated.");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Error in CrudBaseRepository.Update()! Entity {typeof(T).Name}.");
+                result = new CrudResult<T>(ResultType.Error);
+            }
+            return result;
+        }
+
+        public async Task<ICrudResult<T>> UpdateAsync(T entity)
+        {
+            ICrudResult<T> result;
+            try
+            {
+                DynamicParameters parameters = CreateUpdateParams(entity);
+                var x = await _connection.ExecuteAsync(_updateProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure);
                 result = new CrudResult<T>(ResultType.OK);
                 _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully updated.");
             }
@@ -136,6 +157,68 @@ namespace KBL.Framework.DAL.Base.Repositories
         #endregion
 
         #region Private methods
+        private ICrudResult<T> CreateAddResult(T entity, DynamicParameters parameters)
+        {
+            //To get newly created ID back  
+            entity.ID = parameters.Get<long>($"{_dbDialectForParameter}ID");
+            _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully created.");
+            return new CrudResult<T>(ResultType.OK, entity);
+        }
+
+        private DynamicParameters CreateAddParams(T entity)
+        {
+            if (entity is IEntity)
+            {
+                (entity as IEntity).CreatedDateTime = DateTime.UtcNow;
+            }
+            var parameters = CreateParameters(entity);
+            parameters.Add($"{_dbDialectForParameter}ID", entity.ID, dbType: DbType.Int64, direction: ParameterDirection.InputOutput);
+            parameters.Add($"{_dbDialectForParameter}CreatedDateTime", (entity as IEntity).CreatedDateTime);
+
+            if (entity is AuditableEntity)
+            {
+                parameters.Add($"{_dbDialectForParameter}CreatedBy", (entity as AuditableEntity).CreatedBy);
+            }
+
+            return parameters;
+        }
+
+        private DynamicParameters CreateUpdateParams(T entity)
+        {
+            if (entity is IEntity)
+            {
+                (entity as IEntity).ModifiedDateTime = DateTime.UtcNow;
+            }
+            var parameters = CreateParameters(entity);
+            parameters.Add($"{_dbDialectForParameter}ID", entity.ID, dbType: DbType.Int64, direction: ParameterDirection.InputOutput);
+            parameters.Add($"{_dbDialectForParameter}ModifiedDateTime", (entity as IEntity).ModifiedDateTime);
+
+            if (entity is AuditableEntity)
+            {
+                parameters.Add($"{_dbDialectForParameter}ModifiedBy", (entity as AuditableEntity).ModifiedBy);
+            }
+
+            return parameters;
+        }
+
+        private DynamicParameters CreateDeleteParams(T entity)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add($"{_dbDialectForParameter}ID", entity.ID, dbType: DbType.Int64);
+            if (entity is IEntity)
+            {
+                (entity as IEntity).DeletedDateTime = DateTime.UtcNow;
+                parameters.Add($"{_dbDialectForParameter}DeletedDateTime", (entity as IEntity).DeletedDateTime);
+
+            }
+            if (entity is AuditableEntity)
+            {
+                parameters.Add($"{_dbDialectForParameter}DeletedBy", (entity as AuditableEntity).DeletedBy);
+            }
+
+            return parameters;
+        }
+
         protected DynamicParameters CreateParameters(IEntity entity)
         {
             var parameters = new DynamicParameters();
@@ -165,7 +248,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             }
 
             return parameters;
-        }        
+        }
         #endregion
 
     }
