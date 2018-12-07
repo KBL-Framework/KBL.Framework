@@ -11,10 +11,11 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
-    public abstract class BaseQueryRepository<T> : BaseRepository, IDisposable, IQueryRepository<T> where T : IEntity
+    public abstract class BaseQueryRepository<T> : BaseRepository, IDisposable, IQueryRepository<T>/*, IQueryAsyncRepository<T>*/ where T : IEntity
     {
         #region Fields        
         protected IDbConnection _connection;
@@ -126,9 +127,31 @@ namespace KBL.Framework.DAL.Base.Repositories
                 _connection?.Close();
             }
         }
+
+        public async Task<IQueryResult<T>> GetAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IQueryResult<T>> GetAllWithDeletesAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IQueryResult<T>> GetByKeyAsync(object key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IQueryResult<T>> GetByQueryAsync(string storedQueryName, IDictionary<string, object> parameters)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
         #region Private methods
+        protected abstract void SetQueries();
+
         protected IQueryResult<T> PrepareGetAllData(bool includeDeletes)
         {
             try
@@ -198,8 +221,6 @@ namespace KBL.Framework.DAL.Base.Repositories
 
             SetQueries();
         }
-
-        protected abstract void SetQueries();
-    #endregion
-}
+        #endregion
+    }
 }

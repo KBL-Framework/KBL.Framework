@@ -316,7 +316,7 @@ namespace KBL.Framework.BAL.Base.Extensions
             {
                 assemblyName += ".dll";
             }
-            var path = Assembly.GetEntryAssembly()().Location;
+            var path = Assembly.GetEntryAssembly().Location;
             path = Path.GetDirectoryName(path);
             path = Path.Combine(path, assemblyName);
             var assembly = Assembly.LoadFrom(path);
