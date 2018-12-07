@@ -16,8 +16,5 @@ namespace KBL.Framework.DAL.Interfaces.Repositories
         Task<ICrudResult<T>> AddAsync(T entity);
         Task<ICrudResult<T>> DeleteAsync(T entity);
         Task<ICrudResult<T>> UpdateAsync(T entity);
-        //Task<ICrudResult<T>> AddAsync(T entity, CancellationToken cancellationToken);
-        //Task<ICrudResult<T>> DeleteAsync(T entity, CancellationToken cancellationToken);
-        //Task<ICrudResult<T>> UpdateAsync(T entity, CancellationToken cancellationToken);
     }
 }
