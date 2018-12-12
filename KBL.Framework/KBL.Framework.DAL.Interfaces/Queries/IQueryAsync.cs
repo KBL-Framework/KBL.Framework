@@ -10,6 +10,6 @@ namespace KBL.Framework.DAL.Interfaces.Queries
 {
     public interface IQueryAsync<T> : IQueryCommon where T : IEntity
     {
-        Task<IEnumerable<T>> Execute(IDictionary<string, object> parameters, IDbConnection connection);
+        Task<IEnumerable<T>> ExecuteAsync(IDictionary<string, object> parameters, IDbConnection connection);
     }
 }
