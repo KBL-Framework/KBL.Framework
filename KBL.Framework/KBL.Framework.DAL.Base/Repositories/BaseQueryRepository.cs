@@ -12,6 +12,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Polly;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
@@ -24,6 +25,8 @@ namespace KBL.Framework.DAL.Base.Repositories
         protected IDictionary<string, IQueryAsync<T>> _asyncStoredQueries;
         //protected string _connectionString;
         protected string _keyColumnName = "";
+        protected Policy _retryPolicy;
+        protected Policy _retryPolicyAsync;
         #endregion
 
         #region Properties
@@ -37,6 +40,8 @@ namespace KBL.Framework.DAL.Base.Repositories
             {
                 _keyColumnName = "ID";
             }
+            _retryPolicy = Policy.Handle<SqlException>(e => e is SqlException && (_connection == null || _connection?.State != ConnectionState.Open)).Retry(10);
+            _retryPolicyAsync = Policy.Handle<SqlException>(e => e is SqlException && (_connection == null || _connection?.State != ConnectionState.Open)).RetryAsync(10);
         }
         #endregion
 
@@ -64,7 +69,7 @@ namespace KBL.Framework.DAL.Base.Repositories
                 {
                     throw new ArgumentNullException("Key value is null or empty!");
                 }
-                var data = ExecuteGetByKeyCommand(key.ToString());
+                var data = _retryPolicy.Execute(() => ExecuteGetByKeyCommand(key.ToString()));
                 return HandleResult(data);
             }
             catch (Exception ex)
@@ -87,11 +92,7 @@ namespace KBL.Framework.DAL.Base.Repositories
                     throw new IndexOutOfRangeException("Stored query dont existst for this repo.");
                 }
 
-                IEnumerable<T> data = null;
-                using (_connection = new SqlConnection(_connectionString))
-                {
-                    data = _storedQueries[storedQueryName].Execute(parameters, _connection);
-                }
+                IEnumerable<T> data = _retryPolicy.Execute(() => ExecuteQuery(storedQueryName, parameters));
                 return HandleResult(data);
             }
             catch (Exception ex)
@@ -123,7 +124,7 @@ namespace KBL.Framework.DAL.Base.Repositories
                 {
                     throw new ArgumentNullException("Key value is null or empty!");
                 }
-                var data = await ExecuteGetByKeyCommandAsync(key.ToString()).ConfigureAwait(false);
+                var data = await _retryPolicyAsync.ExecuteAsync(async () => await ExecuteGetByKeyCommandAsync(key.ToString()).ConfigureAwait(false)).ConfigureAwait(false);
                 return HandleResult(data);
             }
             catch (Exception ex)
@@ -145,12 +146,7 @@ namespace KBL.Framework.DAL.Base.Repositories
                 {
                     throw new IndexOutOfRangeException("Stored query dont existst for this repo.");
                 }
-
-                IEnumerable<T> data = null;
-                using (_connection = new SqlConnection(_connectionString))
-                {
-                    data = await _asyncStoredQueries[storedQueryName].ExecuteAsync(parameters, _connection).ConfigureAwait(false);
-                }
+                IEnumerable<T> data = await _retryPolicyAsync.ExecuteAsync(async () => await ExecuteQueryAsync(storedQueryName, parameters).ConfigureAwait(false)).ConfigureAwait(false);
                 return HandleResult(data);
             }
             catch (Exception ex)
@@ -162,7 +158,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             {
                 _connection?.Close();
             }
-        }
+        }        
         #endregion
 
         #region Private methods
@@ -172,7 +168,7 @@ namespace KBL.Framework.DAL.Base.Repositories
         {
             try
             {
-                IEnumerable<T> data = ExecuteGetAllCommand(includeDeletes);
+                IEnumerable<T> data = _retryPolicy.Execute(() => ExecuteGetAllCommand(includeDeletes));//ExecuteGetAllCommand(includeDeletes);
                 return HandleResult(data);
             }
             catch (Exception ex)
@@ -190,7 +186,7 @@ namespace KBL.Framework.DAL.Base.Repositories
         {
             try
             {
-                IEnumerable<T> data = await ExecuteGetAllCommandAsync(includeDeletes).ConfigureAwait(false);
+                IEnumerable<T> data = await _retryPolicyAsync.ExecuteAsync(async () => await ExecuteGetAllCommandAsync(includeDeletes).ConfigureAwait(false)).ConfigureAwait(false);
                 return HandleResult(data);
             }
             catch (Exception ex)
@@ -253,7 +249,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             IEnumerable<T> data = null;
             var (parms, query) = PrepareGetByKeyCommand(keyValue);
             using (_connection = new SqlConnection(_connectionString))
-            {
+            {                
                 data = _connection.Query<T>(query, parms, commandType: System.Data.CommandType.Text).ToList();
             }
             return data.ToList();
@@ -283,6 +279,27 @@ namespace KBL.Framework.DAL.Base.Repositories
             _tableName = CreateTableName(typeof(T).Name);
             _keyColumnName = _configuration[$"{ROOT_CONFIG_PATH}:PrimaryKeyColumn"];
             SetQueries();
+        }
+
+        protected IEnumerable<T> ExecuteQuery(string storedQueryName, IDictionary<string, object> parameters)
+        {
+            IEnumerable<T> data;
+            using (_connection = new SqlConnection(_connectionString))
+            {
+                data = _storedQueries[storedQueryName].Execute(parameters, _connection);
+            }
+
+            return data;
+        }
+        protected async Task<IEnumerable<T>> ExecuteQueryAsync(string storedQueryName, IDictionary<string, object> parameters)
+        {
+            IEnumerable<T> data;
+            using (_connection = new SqlConnection(_connectionString))
+            {
+                data = await _asyncStoredQueries[storedQueryName].ExecuteAsync(parameters, _connection).ConfigureAwait(false);
+            }
+
+            return data;
         }
         #endregion
     }

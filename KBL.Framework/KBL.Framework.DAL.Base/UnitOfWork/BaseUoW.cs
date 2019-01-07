@@ -3,6 +3,7 @@ using KBL.Framework.DAL.Interfaces.UnitOfWork;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,6 +20,7 @@ namespace KBL.Framework.DAL.Base.UnitOfWork
         protected IDbConnection _connection;
         protected IDbTransaction _transaction;
         protected IConfiguration _configuration;
+        protected Policy _retryPolicy; //= Policy.Handle<SqlException>(e => e is SqlException && (_connection == null || _connection?.State != ConnectionState.Open)).Retry(10);        
         #endregion
 
         #region Properties
@@ -28,8 +30,7 @@ namespace KBL.Framework.DAL.Base.UnitOfWork
         public BaseUoW(IConfiguration configuration)
         {
             _configuration = configuration;
-            _connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-            _connection.Open();
+            _retryPolicy = Policy.Handle<SqlException>(e => e is SqlException && (_connection == null || _connection?.State != ConnectionState.Open)).Retry(10);
         }
         #endregion
 
@@ -103,6 +104,19 @@ namespace KBL.Framework.DAL.Base.UnitOfWork
         #endregion
 
         #region Private methods
+        protected void CreateConnection()
+        {
+            try
+            {
+                _connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                _connection.Open();
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "Error on CreateConnection in BaseUoW.");
+                throw;
+            }
+        }
         protected virtual void ResetRepositories()
         {
             FieldInfo[] fields = this.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
@@ -117,6 +131,10 @@ namespace KBL.Framework.DAL.Base.UnitOfWork
 
         protected IDbTransaction GetTransaction()
         {
+            if (_connection == null || _connection?.State != ConnectionState.Open)
+            {
+                _retryPolicy.Execute(() => CreateConnection());
+            }
             if (_transaction == null || _transaction.Connection == null)
             {
                 _transaction = _connection.BeginTransaction();
