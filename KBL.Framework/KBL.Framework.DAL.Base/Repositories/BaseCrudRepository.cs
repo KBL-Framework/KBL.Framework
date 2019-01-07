@@ -13,6 +13,8 @@ using KBL.Framework.DAL.Base.Entities;
 using Newtonsoft.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Polly;
+using System.Data.SqlClient;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
@@ -25,6 +27,8 @@ namespace KBL.Framework.DAL.Base.Repositories
         protected IDbConnection _connection;
         protected IDbTransaction _transaction;
         protected string _tableName;
+        protected Policy _retryPolicy;
+        protected Policy _retryPolicyAsync;
         #endregion
 
         #region Properties
@@ -36,6 +40,8 @@ namespace KBL.Framework.DAL.Base.Repositories
             _transaction = transaction;
             _connection = _transaction.Connection;
             _tableName = CreateTableName(typeof(T).Name);
+            _retryPolicy = Policy.Handle<SqlException>(e => e is SqlException && (_connection == null || _connection?.State != ConnectionState.Open)).Retry(10);
+            _retryPolicyAsync = Policy.Handle<SqlException>(e => e is SqlException && (_connection == null || _connection?.State != ConnectionState.Open)).RetryAsync(10);
         }
         #endregion
 
@@ -46,7 +52,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             try
             {
                 DynamicParameters parameters = CreateAddParams(entity);
-                _connection.Execute(_addProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure);
+                _retryPolicy.Execute(() => _connection.Execute(_addProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure));
                 result = CreateAddResult(entity, parameters);
             }
             catch (Exception ex)
@@ -63,7 +69,8 @@ namespace KBL.Framework.DAL.Base.Repositories
             try
             {
                 DynamicParameters parameters = CreateAddParams(entity);
-                var x = await _connection.ExecuteAsync(_addProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure).ConfigureAwait(false);
+                var x = await _retryPolicyAsync.ExecuteAsync(async () => await _connection.ExecuteAsync(_addProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure)
+                .ConfigureAwait(false)).ConfigureAwait(false);
                 result = CreateAddResult(entity, parameters);
             }
             catch (Exception ex)
@@ -84,7 +91,7 @@ namespace KBL.Framework.DAL.Base.Repositories
                     return new CrudResult<T>(ResultType.OK);
                 }
                 DynamicParameters parameters = CreateDeleteParams(entity);
-                _connection.Execute(_deleteProcedureName, parameters, _transaction, null, CommandType.StoredProcedure);
+                _retryPolicy.Execute(() => _connection.Execute(_deleteProcedureName, parameters, _transaction, null, CommandType.StoredProcedure));
                 result = new CrudResult<T>(ResultType.OK);
                 _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully deleted.");
             }
@@ -98,7 +105,6 @@ namespace KBL.Framework.DAL.Base.Repositories
 
         public async Task<ICrudResult<T>> DeleteAsync(T entity)
         {
-
             ICrudResult<T> result;
             try
             {
@@ -107,7 +113,7 @@ namespace KBL.Framework.DAL.Base.Repositories
                     return new CrudResult<T>(ResultType.OK);
                 }
                 DynamicParameters parameters = CreateDeleteParams(entity);
-                var x = await _connection.ExecuteAsync(_deleteProcedureName, parameters, _transaction, null, CommandType.StoredProcedure);
+                var x = await _retryPolicyAsync.ExecuteAsync(async () => await _connection.ExecuteAsync(_deleteProcedureName, parameters, _transaction, null, CommandType.StoredProcedure).ConfigureAwait(false)).ConfigureAwait(false);
                 result = new CrudResult<T>(ResultType.OK);
                 _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully deleted.");
             }
@@ -125,7 +131,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             try
             {
                 DynamicParameters parameters = CreateUpdateParams(entity);
-                _connection.Execute(_updateProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure);
+                _retryPolicy.Execute(() => _connection.Execute(_updateProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure));
                 result = new CrudResult<T>(ResultType.OK);
                 _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully updated.");
             }
@@ -143,7 +149,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             try
             {
                 DynamicParameters parameters = CreateUpdateParams(entity);
-                var x = await _connection.ExecuteAsync(_updateProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure);
+                var x = await _retryPolicyAsync.ExecuteAsync(async () => await _connection.ExecuteAsync(_updateProcedureName, parameters, _transaction, commandType: CommandType.StoredProcedure).ConfigureAwait(false)).ConfigureAwait(false);
                 result = new CrudResult<T>(ResultType.OK);
                 _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully updated.");
             }

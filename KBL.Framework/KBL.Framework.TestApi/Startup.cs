@@ -57,8 +57,8 @@ namespace KBL.Framework.TestApi
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseCreateProceduresForMssql(Configuration, env);
-            app.UseAuditEntityValuesForMssql(Configuration);
+            //app.UseCreateProceduresForMssql(Configuration, env);
+            //app.UseAuditEntityValuesForMssql(Configuration);
             app.UseMvc();
             env.ConfigureNLog("nlog.config");
         }
