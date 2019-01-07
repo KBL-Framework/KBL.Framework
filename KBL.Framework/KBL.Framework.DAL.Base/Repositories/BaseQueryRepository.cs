@@ -11,17 +11,22 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using Polly;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
-    public abstract class BaseQueryRepository<T> : BaseRepository, IDisposable, IQueryRepository<T> where T : IEntity
+    public abstract class BaseQueryRepository<T> : BaseRepository, IDisposable, IQueryRepository<T>, IQueryAsyncRepository<T> where T : IEntity
     {
         #region Fields        
         protected IDbConnection _connection;
         protected string _tableName = "";
         protected IDictionary<string, IQuery<T>> _storedQueries;
+        protected IDictionary<string, IQueryAsync<T>> _asyncStoredQueries;
         //protected string _connectionString;
         protected string _keyColumnName = "";
+        protected Policy _retryPolicy;
+        protected Policy _retryPolicyAsync;
         #endregion
 
         #region Properties
@@ -35,6 +40,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             {
                 _keyColumnName = "ID";
             }
+            _retryPolicy = Policy.Handle<SqlException>(e => e is SqlException && (_connection == null || _connection?.State != ConnectionState.Open)).Retry(10);
         }
         #endregion
 
@@ -58,25 +64,12 @@ namespace KBL.Framework.DAL.Base.Repositories
         {
             try
             {
-                IEnumerable<T> data = null;
                 if (key == null || string.IsNullOrEmpty(key.ToString()))
                 {
                     throw new ArgumentNullException("Key value is null or empty!");
                 }
-
-                data = ExecuteGetByKeyCommand(key.ToString());
-                ResultType resultValue;
-                if (data != null/* && data.Any()*/)
-                {
-                    resultValue = ResultType.OK;
-                }
-                else
-                {
-                    resultValue = ResultType.SqlError;
-                }
-
-                var result = new QueryResult<T>(resultValue, data) as IQueryResult<T>;
-                return result;
+                var data = ExecuteGetByKeyCommand(key.ToString());
+                return HandleResult(data);
             }
             catch (Exception ex)
             {
@@ -91,7 +84,6 @@ namespace KBL.Framework.DAL.Base.Repositories
 
         public IQueryResult<T> GetByQuery(string storedQueryName, IDictionary<string, object> parameters)
         {
-            ResultType resultValue;
             try
             {
                 if (!_storedQueries.ContainsKey(storedQueryName))
@@ -104,17 +96,66 @@ namespace KBL.Framework.DAL.Base.Repositories
                 {
                     data = _storedQueries[storedQueryName].Execute(parameters, _connection);
                 }
-                if (data != null)
+                return HandleResult(data);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Error on GetByQuery() for table {_tableName}, storedQuery name is {_tableName}");
+                return new QueryResult<T>(ResultType.Error, null);
+            }
+            finally
+            {
+                _connection?.Close();
+            }
+        }
+
+        public async Task<IQueryResult<T>> GetAllAsync()
+        {
+            return await PrepareGetAllDataAsync(false).ConfigureAwait(false);
+        }
+
+        public async Task<IQueryResult<T>> GetAllWithDeletesAsync()
+        {
+            return await PrepareGetAllDataAsync(true).ConfigureAwait(false);
+        }
+
+        public async Task<IQueryResult<T>> GetByKeyAsync(object key)
+        {
+            try
+            {
+                if (key == null || string.IsNullOrEmpty(key.ToString()))
                 {
-                    resultValue = ResultType.OK;
+                    throw new ArgumentNullException("Key value is null or empty!");
                 }
-                else
+                var data = await ExecuteGetByKeyCommandAsync(key.ToString()).ConfigureAwait(false);
+                return HandleResult(data);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Error on GetByKey(object key) for table {_tableName}, key value is {key.ToString()}");
+                return new QueryResult<T>(ResultType.Error, null);
+            }
+            finally
+            {
+                _connection?.Close();
+            }
+        }
+
+        public async Task<IQueryResult<T>> GetByQueryAsync(string storedQueryName, IDictionary<string, object> parameters)
+        {
+            try
+            {
+                if (!_storedQueries.ContainsKey(storedQueryName))
                 {
-                    resultValue = ResultType.SqlError;
+                    throw new IndexOutOfRangeException("Stored query dont existst for this repo.");
                 }
 
-                var result = new QueryResult<T>(resultValue, data) as IQueryResult<T>;
-                return result;
+                IEnumerable<T> data = null;
+                using (_connection = new SqlConnection(_connectionString))
+                {
+                    data = await _asyncStoredQueries[storedQueryName].ExecuteAsync(parameters, _connection).ConfigureAwait(false);
+                }
+                return HandleResult(data);
             }
             catch (Exception ex)
             {
@@ -129,26 +170,14 @@ namespace KBL.Framework.DAL.Base.Repositories
         #endregion
 
         #region Private methods
+        protected abstract void SetQueries();
+
         protected IQueryResult<T> PrepareGetAllData(bool includeDeletes)
         {
             try
             {
-                IEnumerable<T> data = null;
-                ResultType resultValue = default(ResultType);
-                //if (resultValue == ResultType.OK)
-                {
-                    data = ExecuteGetAllCommand(includeDeletes);
-                    if (data != null)
-                    {
-                        resultValue = ResultType.OK;
-                    }
-                    else
-                    {
-                        resultValue = ResultType.SqlError;
-                    }
-                }
-                var result = new QueryResult<T>(resultValue, data) as IQueryResult<T>;
-                return result;
+                IEnumerable<T> data = _retryPolicy.Execute(() => ExecuteGetAllCommand(includeDeletes));//ExecuteGetAllCommand(includeDeletes);
+                return HandleResult(data);
             }
             catch (Exception ex)
             {
@@ -161,45 +190,104 @@ namespace KBL.Framework.DAL.Base.Repositories
             }
         }
 
+        protected async Task<IQueryResult<T>> PrepareGetAllDataAsync(bool includeDeletes)
+        {
+            try
+            {
+                IEnumerable<T> data = await ExecuteGetAllCommandAsync(includeDeletes).ConfigureAwait(false);
+                return HandleResult(data);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Error on PrepareGetAllData(IDictionary<string,string> parameters) for table {_tableName}");
+                return new QueryResult<T>(ResultType.Error, null);
+            }
+            finally
+            {
+                _connection?.Close();
+            }
+        }
+
+        private static IQueryResult<T> HandleResult(IEnumerable<T> data)
+        {
+            ResultType resultValue = default(ResultType);
+            if (data != null)
+            {
+                resultValue = ResultType.OK;
+            }
+            else
+            {
+                resultValue = ResultType.SqlError;
+            }
+            return new QueryResult<T>(resultValue, data) as IQueryResult<T>;
+        }
+
         protected virtual IEnumerable<T> ExecuteGetAllCommand(bool includeDeletes)
         {
             IEnumerable<T> data = null;
+            using (_connection = new SqlConnection(_connectionString))
+            {
+                data = _connection.Query<T>(PrepareGetAllCommand(includeDeletes), commandType: CommandType.Text).ToList();
+            }
+            return data;
+        }
+
+        protected virtual async Task<IEnumerable<T>> ExecuteGetAllCommandAsync(bool includeDeletes)
+        {
+            IEnumerable<T> data = null;
+            using (_connection = new SqlConnection(_connectionString))
+            {
+                data = await _connection.QueryAsync<T>(PrepareGetAllCommand(includeDeletes), commandType: CommandType.Text).ConfigureAwait(false);
+            }
+            return data.ToList();
+        }
+
+        protected string PrepareGetAllCommand(bool includeDeletes)
+        {
             string query = $"SELECT * FROM {_tableName}";
             if (!includeDeletes)
             {
                 query += " WHERE DeletedDateTime IS NULL";
             }
-            using (_connection = new SqlConnection(_connectionString))
-            {
-                data = _connection.Query<T>(query, commandType: System.Data.CommandType.Text).ToList();
-            }
-
-            return data;
+            return query;
         }
 
         protected virtual IEnumerable<T> ExecuteGetByKeyCommand(string keyValue)
         {
             IEnumerable<T> data = null;
+            var (parms, query) = PrepareGetByKeyCommand(keyValue);
+            using (_connection = new SqlConnection(_connectionString))
+            {                
+                data = _connection.Query<T>(query, parms, commandType: System.Data.CommandType.Text).ToList();
+            }
+            return data.ToList();
+        }
+
+        protected (DynamicParameters parms, string query) PrepareGetByKeyCommand(string keyValue)
+        {
             string query = $"SELECT * FROM {_tableName} WHERE {_keyColumnName} = {_dbDialectForParameter}{_keyColumnName} AND DeletedDateTime IS NULL";
             DynamicParameters parms = new DynamicParameters();
             parms.Add($"{_dbDialectForParameter}{_keyColumnName}", keyValue, _typeMap[typeof(long?)]);
+            return (parms, query);
+        }
 
+        protected virtual async Task<IEnumerable<T>> ExecuteGetByKeyCommandAsync(string keyValue)
+        {
+            IEnumerable<T> data = null;
+            var (parms, query) = PrepareGetByKeyCommand(keyValue);
             using (_connection = new SqlConnection(_connectionString))
             {
-                data = _connection.Query<T>(query, parms, commandType: System.Data.CommandType.Text).ToList();
+                data = await _connection.QueryAsync<T>(query, parms, commandType: System.Data.CommandType.Text).ConfigureAwait(false);
             }
-            return data;
+            return data.ToList();
         }
 
         protected override void SetRepositoryMetadata()
         {
             _tableName = CreateTableName(typeof(T).Name);
             _keyColumnName = _configuration[$"{ROOT_CONFIG_PATH}:PrimaryKeyColumn"];
-
             SetQueries();
         }
-
-        protected abstract void SetQueries();
-    #endregion
-}
+        #endregion
+    }
 }

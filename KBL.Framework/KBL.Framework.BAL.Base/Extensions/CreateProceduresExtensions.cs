@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.DotNet.PlatformAbstractions;
+//using Microsoft.DotNet.PlatformAbstractions;
 using Microsoft.Extensions.Configuration;
 using NLog;
 using System;

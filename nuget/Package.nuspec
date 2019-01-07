@@ -14,13 +14,15 @@
     <projectUrl>https://github.com/KBL-Framework/KBL.Framework</projectUrl>
     <dependencies>      
       <dependency id="KBL.ExceptionManager" version="0.9.7" />
-      <dependency id="NLog" version="4.5.8" />
-      <dependency id="NLog.Extensions.Logging" version="1.2.1" />
+      <dependency id="NLog" version="4.5.11" />
+      <dependency id="NLog.Extensions.Logging" version="1.3.0" />
       <dependency id="Dapper" version="1.50.5" />
-      <dependency id="Microsoft.Extensions.Configuration" version="2.1.1" />
+      <dependency id="Microsoft.Extensions.Configuration" version="2.2.0" />
       <dependency id="System.Data.Common" version="4.3.0" />
-      <dependency id="System.Data.SqlClient" version="4.5.1" />
-      <dependency id="AutoMapper" version="7.0.1" />
+      <dependency id="System.Data.SqlClient" version="4.6.0" />
+      <dependency id="AutoMapper" version="8.0.0" />
+      <dependency id="Newtonsoft.Json" version="12.0.1" />
+      <dependency id="Microsoft.AspNetCore.Hosting.Abstractions" version="2.2.0" />
     </dependencies>
   </metadata>  
 </package>
