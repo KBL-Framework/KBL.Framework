@@ -12,6 +12,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Polly;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
@@ -24,6 +25,8 @@ namespace KBL.Framework.DAL.Base.Repositories
         protected IDictionary<string, IQueryAsync<T>> _asyncStoredQueries;
         //protected string _connectionString;
         protected string _keyColumnName = "";
+        protected Policy _retryPolicy;
+        protected Policy _retryPolicyAsync;
         #endregion
 
         #region Properties
@@ -37,6 +40,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             {
                 _keyColumnName = "ID";
             }
+            _retryPolicy = Policy.Handle<SqlException>(e => e is SqlException && (_connection == null || _connection?.State != ConnectionState.Open)).Retry(10);
         }
         #endregion
 
@@ -172,7 +176,7 @@ namespace KBL.Framework.DAL.Base.Repositories
         {
             try
             {
-                IEnumerable<T> data = ExecuteGetAllCommand(includeDeletes);
+                IEnumerable<T> data = _retryPolicy.Execute(() => ExecuteGetAllCommand(includeDeletes));//ExecuteGetAllCommand(includeDeletes);
                 return HandleResult(data);
             }
             catch (Exception ex)
@@ -253,7 +257,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             IEnumerable<T> data = null;
             var (parms, query) = PrepareGetByKeyCommand(keyValue);
             using (_connection = new SqlConnection(_connectionString))
-            {
+            {                
                 data = _connection.Query<T>(query, parms, commandType: System.Data.CommandType.Text).ToList();
             }
             return data.ToList();
