@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KBL.Framework.DAL.Interface
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KBL.Framework.DAL.Base", "KBL.Framework.DAL.Base\KBL.Framework.DAL.Base.csproj", "{26FCFD8F-64A5-4419-BA0E-F6CE5A151EAA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KBL.Framework.TestApi", "KBL.Framework.TestApi\KBL.Framework.TestApi.csproj", "{5ADED743-15E8-4135-9AB4-6FEBF0BC348B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +33,6 @@ Global
 		{26FCFD8F-64A5-4419-BA0E-F6CE5A151EAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26FCFD8F-64A5-4419-BA0E-F6CE5A151EAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26FCFD8F-64A5-4419-BA0E-F6CE5A151EAA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5ADED743-15E8-4135-9AB4-6FEBF0BC348B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5ADED743-15E8-4135-9AB4-6FEBF0BC348B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5ADED743-15E8-4135-9AB4-6FEBF0BC348B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5ADED743-15E8-4135-9AB4-6FEBF0BC348B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
