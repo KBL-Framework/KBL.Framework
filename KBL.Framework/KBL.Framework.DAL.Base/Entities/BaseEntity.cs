@@ -9,9 +9,9 @@ namespace KBL.Framework.DAL.Base.Entities
     {
         #region Properties
         public long ID { get; set; }
-        public DateTime CreatedDateTime { get; set; }        
-        public DateTime? ModifiedDateTime { get; set; }        
-        public DateTime? DeletedDateTime { get; set; }        
+        public DateTimeOffset CreatedDateTime { get; set; }        
+        public DateTimeOffset? ModifiedDateTime { get; set; }        
+        public DateTimeOffset? DeletedDateTime { get; set; }        
         #endregion
     }
 

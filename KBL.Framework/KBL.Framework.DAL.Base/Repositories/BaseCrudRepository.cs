@@ -175,7 +175,7 @@ namespace KBL.Framework.DAL.Base.Repositories
         {
             if (entity is IEntity)
             {
-                (entity as IEntity).CreatedDateTime = DateTime.UtcNow;
+                (entity as IEntity).CreatedDateTime = DateTimeOffset.UtcNow;
             }
             var parameters = CreateParameters(entity);
             parameters.Add($"{_dbDialectForParameter}ID", entity.ID, dbType: DbType.Int64, direction: ParameterDirection.InputOutput);
@@ -193,7 +193,7 @@ namespace KBL.Framework.DAL.Base.Repositories
         {
             if (entity is IEntity)
             {
-                (entity as IEntity).ModifiedDateTime = DateTime.UtcNow;
+                (entity as IEntity).ModifiedDateTime = DateTimeOffset.UtcNow;
             }
             var parameters = CreateParameters(entity);
             parameters.Add($"{_dbDialectForParameter}ID", entity.ID, dbType: DbType.Int64, direction: ParameterDirection.InputOutput);
@@ -213,7 +213,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             parameters.Add($"{_dbDialectForParameter}ID", entity.ID, dbType: DbType.Int64);
             if (entity is IEntity)
             {
-                (entity as IEntity).DeletedDateTime = DateTime.UtcNow;
+                (entity as IEntity).DeletedDateTime = DateTimeOffset.UtcNow;
                 parameters.Add($"{_dbDialectForParameter}DeletedDateTime", (entity as IEntity).DeletedDateTime);
 
             }
