@@ -137,7 +137,15 @@ namespace KBL.Framework.DAL.Base.UnitOfWork
             }
             if (_transaction == null || _transaction.Connection == null)
             {
-                _transaction = _connection.BeginTransaction();
+                if(string.IsNullOrEmpty(_configuration["Transaction:IsolationLevel"]))
+                {
+                    _transaction = _connection.BeginTransaction();
+                }
+                else
+                {
+                    Enum.TryParse(_configuration["Transaction:IsolationLevel"], out System.Data.IsolationLevel isolationLevel);
+                    _transaction = _connection.BeginTransaction(isolationLevel);
+                }
             }
             return _transaction;
         }
