@@ -1,9 +1,4 @@
 # ASP.NET Core (.NET Framework)
-- task: NuGetCommand@2
-  inputs:
-    command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
-    nuGetFeedType: 'internal'
 # Build and test ASP.NET Core projects targeting the full .NET Framework.
 # Add steps that publish symbols, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
@@ -22,3 +17,17 @@ variables:
 steps:
 - task: NuGetToolInstaller@0
 
+- task: NuGetCommand@2
+  displayName: 'Nuget pack'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'nuget/Package.nuspec'
+    versioningScheme: 'off'
+
+- task: NuGetCommand@2
+  displayName: 'Nuget push'
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'kbl-nuget-publish' # Name of Nuget Service connection
