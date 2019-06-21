@@ -17,6 +17,21 @@ variables:
 steps:
 - task: NuGetToolInstaller@0
 
+
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: '**/*.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    projects: '**/*.csproj'
+    arguments: '--configuration Release'
+
+
+
 - task: NuGetCommand@2
   displayName: 'Nuget pack'
   inputs:
