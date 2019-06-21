@@ -3,13 +3,13 @@
   <metadata>
     <id>KBL.Framework</id>
     <title>KBL.Framework</title>
-    <version>2.0.1.3</version>
-    <authors>Jakub Luňáček</authors>
+    <version>2.0.1.4</version>
+    <authors>KBL team</authors>
     <owners>KBL.codes</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Simple generic SOLID .NET Core 2.x architectural framework that will be CRUD and map for you.</description>
     <releaseNotes>Cumulative update - some repairs and updates.</releaseNotes>
-    <copyright>Copyright 2018 (c) KBL.codes. All rights reserved.</copyright>
+    <copyright>Copyright 2018-2019 (c) KBL.codes. All rights reserved.</copyright>
     <tags>KBL Framework Manager Exception lunacek kbl.codes CRUD dapper BAL BLL DAL DB</tags>
     <projectUrl>https://github.com/KBL-Framework/KBL.Framework</projectUrl>
     <dependencies>      

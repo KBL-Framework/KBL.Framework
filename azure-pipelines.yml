@@ -21,7 +21,7 @@ steps:
   displayName: 'Nuget pack'
   inputs:
     command: 'pack'
-    packagesToPack: 'nuget/Package.nuspec'
+    packagesToPack: 'Package.nuspec'
     versioningScheme: 'off'
 
 - task: NuGetCommand@2
