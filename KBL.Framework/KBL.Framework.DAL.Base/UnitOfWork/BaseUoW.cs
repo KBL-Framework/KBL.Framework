@@ -137,13 +137,13 @@ namespace KBL.Framework.DAL.Base.UnitOfWork
             }
             if (_transaction == null || _transaction.Connection == null)
             {
-                if(string.IsNullOrEmpty(_configuration["Transaction:IsolationLevel"]))
+                if(string.IsNullOrEmpty(_configuration["KBL.Framework.DAL.Config:Transaction:IsolationLevel"]))
                 {
                     _transaction = _connection.BeginTransaction();
                 }
                 else
                 {
-                    Enum.TryParse(_configuration["Transaction:IsolationLevel"], out System.Data.IsolationLevel isolationLevel);
+                    Enum.TryParse(_configuration["KBL.Framework.DAL.Config:Transaction:IsolationLevel"], out System.Data.IsolationLevel isolationLevel);
                     _transaction = _connection.BeginTransaction(isolationLevel);
                 }
             }
