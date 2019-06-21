@@ -28,7 +28,7 @@ steps:
   displayName: Build
   inputs:
     projects: '**/*.csproj'
-    arguments: '--configuration Release'
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
 
 
@@ -36,7 +36,7 @@ steps:
   displayName: 'Nuget pack'
   inputs:
     command: 'pack'
-    packagesToPack: 'nzget/Package.nuspec'
+    packagesToPack: 'nuget/Package.nuspec'
     versioningScheme: 'off'
 
 - task: NuGetCommand@2
