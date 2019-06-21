@@ -24,6 +24,10 @@ Base is:
 
 ## Config section
 
+###SqlConnection.BeginTransaction Method
+KBL.Framework.DAL.Config:Transaction:IsolationLevel	- [https://docs.microsoft.com/cs-cz/dotnet/api/system.data.sqlclient.sqlconnection.begintransaction?view=netframework-4.8](https://docs.microsoft.com/cs-cz/dotnet/api/system.data.sqlclient.sqlconnection.begintransaction?view=netframework-4.8)
+
+
 ## Workshop 1 CZ
  - https://youtu.be/YOIKTBo6Esk
 ___
