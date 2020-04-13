@@ -99,6 +99,28 @@ namespace KBL.Framework.DAL.Base.Repositories
             return result;
         }
 
+        public ICrudResult<T> UnDelete(T entity)
+        {
+            ICrudResult<T> result;
+            try
+            {
+                if (entity is AuditableEntity && (entity as IEntity)?.DeletedDateTime == null)
+                {
+                    return new CrudResult<T>(ResultType.OK);
+                }
+                DynamicParameters parameters = CreateUnDeleteParams(entity);
+                _retryPolicy.Execute(() => _connection.Execute(_deleteProcedureName, parameters, _transaction, null, CommandType.StoredProcedure));
+                result = new CrudResult<T>(ResultType.OK);
+                _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully undeleted.");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Error in CrudBaseRepository.UnDelete()! Entity {typeof(T).Name}.");
+                result = new CrudResult<T>(ResultType.Error);
+            }
+            return result;
+        }
+
         public async Task<ICrudResult<T>> DeleteAsync(T entity)
         {
             ICrudResult<T> result;
@@ -116,6 +138,28 @@ namespace KBL.Framework.DAL.Base.Repositories
             catch (Exception ex)
             {
                 _logger.Error(ex, $"Error in CrudBaseRepository.Delete()! Entity {typeof(T).Name}.");
+                result = new CrudResult<T>(ResultType.Error);
+            }
+            return result;
+        }
+
+        public async Task<ICrudResult<T>> UnDeleteAsync(T entity)
+        {
+            ICrudResult<T> result;
+            try
+            {
+                if (entity is AuditableEntity && (entity as IEntity)?.DeletedDateTime == null)
+                {
+                    return new CrudResult<T>(ResultType.OK);
+                }
+                DynamicParameters parameters = CreateUnDeleteParams(entity);
+                var x = await _retryPolicyAsync.ExecuteAsync(async () => await _connection.ExecuteAsync(_deleteProcedureName, parameters, _transaction, null, CommandType.StoredProcedure).ConfigureAwait(false)).ConfigureAwait(false);
+                result = new CrudResult<T>(ResultType.OK);
+                _logger.Info($"Entity {typeof(T).Name} ID = {entity.ID} was successfully undeleted.");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Error in CrudBaseRepository.UnDelete()! Entity {typeof(T).Name}.");
                 result = new CrudResult<T>(ResultType.Error);
             }
             return result;
@@ -216,6 +260,24 @@ namespace KBL.Framework.DAL.Base.Repositories
             if (entity is AuditableEntity)
             {
                 parameters.Add($"{_dbDialectForParameter}DeletedBy", (entity as AuditableEntity).DeletedBy);
+            }
+
+            return parameters;
+        }
+
+        private DynamicParameters CreateUnDeleteParams(T entity)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add($"{_dbDialectForParameter}ID", entity.ID, dbType: DbType.Int64);
+            if (entity is IEntity)
+            {
+                (entity as IEntity).DeletedDateTime = null;
+                parameters.Add($"{_dbDialectForParameter}DeletedDateTime", null);
+
+            }
+            if (entity is AuditableEntity)
+            {
+                parameters.Add($"{_dbDialectForParameter}DeletedBy", null);
             }
 
             return parameters;

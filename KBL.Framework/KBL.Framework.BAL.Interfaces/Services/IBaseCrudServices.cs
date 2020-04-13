@@ -8,6 +8,7 @@ namespace KBL.Framework.BAL.Interfaces.Services
         long Create(DetailDto dto);
         bool Update(DetailDto dto);
         bool Delete(DetailDto dto);
+        bool UnDelete(DetailDto dto);
         long Create(DetailDto dto, string createdBy);
         bool Update(DetailDto dto, string modifiedBy);
         bool Delete(DetailDto dto, string deletedBy);

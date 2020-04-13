@@ -71,6 +71,12 @@ namespace KBL.Framework.BAL.Base.Services
             return DeleteEntity(dto, deletedBy);
         }
 
+        public virtual bool UnDelete(DetailDto dto)
+        {
+            _logger.Debug($"Called UnDelete{_type.Name}() with ID = {dto.ID}.");
+            return UnDeleteEntity(dto);
+        }
+
         public virtual DetailDto Get(long id)
         {
             _logger.Debug($"Called Get{_type.Name}() with ID = {id}.");
@@ -164,6 +170,24 @@ namespace KBL.Framework.BAL.Base.Services
             if (result.IsSuccess == ResultType.OK)
             {
                 _logger.Info($"{_type.Name} with ID = {result.ID} was deleted.");
+                bool isSuccess = _uow.SaveChanges();
+                return isSuccess;
+            }
+            throw new DeleteEntityException<Entity>(result.IsSuccess.ToString());
+        }
+
+        protected bool UnDeleteEntity(DetailDto dto)
+        {
+            var mapper = _mapperFactory.CreateMapperFromDetailDto();
+            var entity = mapper.Map<Entity>(dto);
+            if (entity is AuditableEntity)
+            {
+                (entity as AuditableEntity).DeletedBy = null;
+            }
+            var result = _crudRepo.UnDelete(entity);
+            if (result.IsSuccess == ResultType.OK)
+            {
+                _logger.Info($"{_type.Name} with ID = {result.ID} was undeleted.");
                 bool isSuccess = _uow.SaveChanges();
                 return isSuccess;
             }
