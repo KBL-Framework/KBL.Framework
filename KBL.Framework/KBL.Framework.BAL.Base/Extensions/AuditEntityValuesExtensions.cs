@@ -1,15 +1,12 @@
 ﻿using KBL.Framework.DAL.Base.Infrastructure;
-using KBL.Framework.DAL.Interfaces.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace KBL.Framework.BAL.Base.Extensions
 {
@@ -28,7 +25,7 @@ namespace KBL.Framework.BAL.Base.Extensions
             _connectionString = configuration["ConnectionStrings:DefaultConnection"];
             AuditingHelper.Instance.IsAuditingEnable = true;
             CreateDbObjects();
-            
+
             return builder;
         }
         #endregion
@@ -136,7 +133,7 @@ namespace KBL.Framework.BAL.Base.Extensions
 
         private static bool CreateToJsonFunction()
         {
-            var function = "CREATE FUNCTION [logs].[RowToJson] (@IncludeHead int,@ToLowerCase int,@XML xml)\r\nReturns varchar(max)\r\nAS\r\nBegin\r\n    Declare @Head varchar(max) = '',@JSON varchar(max) = ''\r\n    ; with cteEAV as (Select RowNr=Row_Number() over (Order By (Select NULL))\r\n                            ,Entity    = xRow.value('@*[1]','varchar(100)')\r\n                            ,Attribute = xAtt.value('local-name(.)','varchar(100)')\r\n                            ,Value     = xAtt.value('.','varchar(max)') \r\n                       From  @XML.nodes('/row') As R(xRow) \r\n                       Cross Apply R.xRow.nodes('./@*') As A(xAtt) )\r\n          ,cteSum as (Select Records=count(Distinct Entity)\r\n                            ,Head = IIF(@IncludeHead=0,IIF(count(Distinct Entity)<=1,'[getResults]','[[getResults]]'),Concat('{\""+"status"+"\":{\"successful\":\"true\",\"timestamp\":\"',Format(GetUTCDate(),'yyyy-MM-dd hh:mm:ss '),'GMT','\",\"rows\":\"',count(Distinct Entity),'\"},\"results\":[[getResults]]}') ) \r\n                       From  cteEAV)\r\n          ,cteBld as (Select *\r\n                            ,NewRow=IIF(Lag(Entity,1)  over (Partition By Entity Order By (Select NULL))=Entity,'',',{')\r\n                            ,EndRow=IIF(Lead(Entity,1) over (Partition By Entity Order By (Select NULL))=Entity,',','}')\r\n                            ,JSON=Concat('\"',IIF(@ToLowerCase=1,Lower(Attribute),Attribute),'\":','\"',Value,'\"') \r\n                       From  cteEAV )\r\n    Select @JSON = @JSON+NewRow+JSON+EndRow,@Head = Head From cteBld, cteSum\r\n    Return Replace(@Head,'[getResults]',Stuff(@JSON,1,1,''))\r\nEnd";
+            var function = "CREATE FUNCTION [logs].[RowToJson] (@IncludeHead int,@ToLowerCase int,@XML xml)\r\nReturns varchar(max)\r\nAS\r\nBegin\r\n    Declare @Head varchar(max) = '',@JSON varchar(max) = ''\r\n    ; with cteEAV as (Select RowNr=Row_Number() over (Order By (Select NULL))\r\n                            ,Entity    = xRow.value('@*[1]','varchar(100)')\r\n                            ,Attribute = xAtt.value('local-name(.)','varchar(100)')\r\n                            ,Value     = xAtt.value('.','varchar(max)') \r\n                       From  @XML.nodes('/row') As R(xRow) \r\n                       Cross Apply R.xRow.nodes('./@*') As A(xAtt) )\r\n          ,cteSum as (Select Records=count(Distinct Entity)\r\n                            ,Head = IIF(@IncludeHead=0,IIF(count(Distinct Entity)<=1,'[getResults]','[[getResults]]'),Concat('{\"" + "status" + "\":{\"successful\":\"true\",\"timestamp\":\"',Format(GetUTCDate(),'yyyy-MM-dd hh:mm:ss '),'GMT','\",\"rows\":\"',count(Distinct Entity),'\"},\"results\":[[getResults]]}') ) \r\n                       From  cteEAV)\r\n          ,cteBld as (Select *\r\n                            ,NewRow=IIF(Lag(Entity,1)  over (Partition By Entity Order By (Select NULL))=Entity,'',',{')\r\n                            ,EndRow=IIF(Lead(Entity,1) over (Partition By Entity Order By (Select NULL))=Entity,',','}')\r\n                            ,JSON=Concat('\"',IIF(@ToLowerCase=1,Lower(Attribute),Attribute),'\":','\"',Value,'\"') \r\n                       From  cteEAV )\r\n    Select @JSON = @JSON+NewRow+JSON+EndRow,@Head = Head From cteBld, cteSum\r\n    Return Replace(@Head,'[getResults]',Stuff(@JSON,1,1,''))\r\nEnd";
             return ExecuteSQLCommand(function);
         }
 

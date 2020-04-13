@@ -1,9 +1,5 @@
 ﻿using KBL.Framework.DAL.Interfaces.Entities;
 using KBL.Framework.DAL.Interfaces.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace KBL.Framework.DAL.Interfaces.Repositories

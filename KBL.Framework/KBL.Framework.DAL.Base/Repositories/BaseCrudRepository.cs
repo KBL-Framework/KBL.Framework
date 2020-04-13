@@ -1,20 +1,16 @@
-﻿using KBL.Framework.DAL.Base.Infrastructure;
+﻿using Dapper;
+using KBL.Framework.DAL.Base.Entities;
+using KBL.Framework.DAL.Base.Infrastructure;
 using KBL.Framework.DAL.Interfaces.Entities;
 using KBL.Framework.DAL.Interfaces.Infrastructure;
 using KBL.Framework.DAL.Interfaces.Repositories;
-using Dapper;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using KBL.Framework.DAL.Base.Entities;
-using Newtonsoft.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Polly;
+using System;
+using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
@@ -78,7 +74,7 @@ namespace KBL.Framework.DAL.Base.Repositories
                 _logger.Error(ex, $"Error in CrudBaseRepository.Add()! Entity {typeof(T).Name}.");
                 result = new CrudResult<T>(ResultType.Error);
             }
-            return  result;
+            return result;
         }
 
         public ICrudResult<T> Delete(T entity)
@@ -232,7 +228,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             {
                 if (propertyInfo.PropertyType.ToString().Contains("Collection") == false)
                 {
-                    if (!propertyInfo.Name.ToLower().Equals("id") && !typeof(IEntity).GetProperties().Select(x=>x.Name).Contains(propertyInfo.Name) && !typeof(AuditableEntity).GetProperties().Select(x => x.Name).Contains(propertyInfo.Name))
+                    if (!propertyInfo.Name.ToLower().Equals("id") && !typeof(IEntity).GetProperties().Select(x => x.Name).Contains(propertyInfo.Name) && !typeof(AuditableEntity).GetProperties().Select(x => x.Name).Contains(propertyInfo.Name))
                     {
                         var value = propertyInfo.GetValue(entity, null)?.ToString();
                         var type = propertyInfo.GetValue(entity, null)?.GetType();

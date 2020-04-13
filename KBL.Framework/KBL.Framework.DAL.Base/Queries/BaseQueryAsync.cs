@@ -1,10 +1,7 @@
 ﻿using KBL.Framework.DAL.Interfaces.Entities;
 using KBL.Framework.DAL.Interfaces.Queries;
-using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace KBL.Framework.DAL.Base.Queries
@@ -46,6 +43,6 @@ namespace KBL.Framework.DAL.Base.Queries
         protected abstract Task<IEnumerable<T>> ProceedExecuteAsync(IDictionary<string, object> parameters, IDbConnection connection);
         protected abstract void InitializeParameters();
         #endregion
-        
+
     }
 }

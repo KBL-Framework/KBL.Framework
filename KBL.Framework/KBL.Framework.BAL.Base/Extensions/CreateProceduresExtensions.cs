@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace KBL.Framework.BAL.Base.Extensions
 {
@@ -90,7 +89,7 @@ namespace KBL.Framework.BAL.Base.Extensions
             List<string> scripts = new List<string>();
             foreach (var item in GetClasses())
             {
-                string[] procs = new string []
+                string[] procs = new string[]
                 {
                     CreateProcedureFullName("Create", item),
                     CreateProcedureFullName("Update", item),
@@ -195,7 +194,7 @@ namespace KBL.Framework.BAL.Base.Extensions
             metas = metas.Where(x => _forDelete.Contains(x.column.ToLower())).ToList();
             return CreateDmlUpdate(procedureName, table, dbOperation, metas);
         }
-        
+
         private static string CreateTableName(string className)
         {
             string tableName = _configuration[$"{ROOT_CONFIG_PATH}:Tables:{className}"];
@@ -224,7 +223,7 @@ namespace KBL.Framework.BAL.Base.Extensions
                             AND TABLE_SCHEMA = @schema";
             List<(string column, string type, int? len)> list = new List<(string, string, int?)>();
             try
-            {                
+            {
                 using (var connection = new SqlConnection(_connectionString))
                 {
                     var command = new SqlCommand(query, connection);
@@ -249,7 +248,7 @@ namespace KBL.Framework.BAL.Base.Extensions
         private static bool CreateSchema()
         {
             var query = $"IF NOT EXISTS (SELECT schema_name FROM information_schema.schemata WHERE schema_name = '{_procedureSchema}') EXEC('CREATE SCHEMA {_procedureSchema}')";
-            return ExecuteSQLCommands(new List<string>{ query });
+            return ExecuteSQLCommands(new List<string> { query });
         }
 
         private static bool IsProcedureExists(string procedureName)

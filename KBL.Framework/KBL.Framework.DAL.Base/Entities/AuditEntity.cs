@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KBL.Framework.DAL.Base.Entities
+﻿namespace KBL.Framework.DAL.Base.Entities
 {
     public class AuditEntity : BaseEntity
     {

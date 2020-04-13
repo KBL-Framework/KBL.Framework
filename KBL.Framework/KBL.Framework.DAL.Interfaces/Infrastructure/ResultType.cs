@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace KBL.Framework.DAL.Interfaces.Infrastructure
+﻿namespace KBL.Framework.DAL.Interfaces.Infrastructure
 {
     public enum ResultType
     {

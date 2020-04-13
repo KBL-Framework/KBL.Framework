@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
@@ -81,7 +79,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             //typeMap[typeof(System.Data.Linq.Binary)] = DbType.Binary;
 
             return typeMap;
-        }        
+        }
 
         protected virtual string CreateTableName(string className)
         {

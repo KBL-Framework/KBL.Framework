@@ -1,12 +1,9 @@
 ﻿using Dapper;
 using KBL.Framework.DAL.Base.Entities;
 using KBL.Framework.DAL.Base.Infrastructure;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KBL.Framework.DAL.Base.Queries.Implementations
 {
