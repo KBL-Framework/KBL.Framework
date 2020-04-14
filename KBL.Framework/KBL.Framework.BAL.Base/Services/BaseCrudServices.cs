@@ -1,18 +1,15 @@
-﻿using KBL.ExceptionManager.Model;
-using Microsoft.Extensions.Logging;
-using NLog;
+﻿using KBL.ExceptionManager.Model.Exceptions;
+using KBL.Framework.BAL.Interfaces.Entities;
+using KBL.Framework.BAL.Interfaces.Mappers;
+using KBL.Framework.BAL.Interfaces.Services;
+using KBL.Framework.DAL.Base.Entities;
 using KBL.Framework.DAL.Interfaces.Entities;
 using KBL.Framework.DAL.Interfaces.Infrastructure;
 using KBL.Framework.DAL.Interfaces.Repositories;
 using KBL.Framework.DAL.Interfaces.UnitOfWork;
+using NLog;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using KBL.Framework.BAL.Interfaces.Entities;
-using KBL.Framework.BAL.Interfaces.Services;
-using KBL.Framework.BAL.Interfaces.Mappers;
-using KBL.ExceptionManager.Model.Exceptions;
-using KBL.Framework.DAL.Base.Entities;
 
 namespace KBL.Framework.BAL.Base.Services
 {
@@ -20,11 +17,11 @@ namespace KBL.Framework.BAL.Base.Services
         : IBaseCrudServices<DetailDto, GridDto>
         where DetailDto : IDto
         where GridDto : IDto
-        where Entity : IEntity 
+        where Entity : IEntity
         where QueryRepository : IQueryRepository<Entity>
         where CrudRepository : ICrudRepository<Entity>
-        where UoW : IUnitOfWork 
-        where MapperFactory : IMapperFactory 
+        where UoW : IUnitOfWork
+        where MapperFactory : IMapperFactory
     {
         #region Fields
         protected static readonly Logger _logger = LogManager.GetCurrentClassLogger();
@@ -58,7 +55,7 @@ namespace KBL.Framework.BAL.Base.Services
 
         public virtual long Create(DetailDto dto, string createdBy)
         {
-            _logger.Debug($"Called Create{_type.Name}() by {createdBy}.");            
+            _logger.Debug($"Called Create{_type.Name}() by {createdBy}.");
             return CreateEntity(dto, createdBy);
         }
 
@@ -70,8 +67,14 @@ namespace KBL.Framework.BAL.Base.Services
 
         public virtual bool Delete(DetailDto dto, string deletedBy)
         {
-            _logger.Debug($"Called Delete{_type.Name}() with ID = {dto.ID} by {deletedBy}.");            
+            _logger.Debug($"Called Delete{_type.Name}() with ID = {dto.ID} by {deletedBy}.");
             return DeleteEntity(dto, deletedBy);
+        }
+
+        public virtual bool UnDelete(DetailDto dto)
+        {
+            _logger.Debug($"Called UnDelete{_type.Name}() with ID = {dto.ID}.");
+            return UnDeleteEntity(dto);
         }
 
         public virtual DetailDto Get(long id)
@@ -110,7 +113,7 @@ namespace KBL.Framework.BAL.Base.Services
 
         public virtual bool Update(DetailDto dto, string modifiedBy)
         {
-            _logger.Debug($"Called Update{_type.Name}() with ID = {dto.ID} by {modifiedBy}.");            
+            _logger.Debug($"Called Update{_type.Name}() with ID = {dto.ID} by {modifiedBy}.");
             return UpdateEntity(dto, modifiedBy);
         }
         #endregion
@@ -167,6 +170,24 @@ namespace KBL.Framework.BAL.Base.Services
             if (result.IsSuccess == ResultType.OK)
             {
                 _logger.Info($"{_type.Name} with ID = {result.ID} was deleted.");
+                bool isSuccess = _uow.SaveChanges();
+                return isSuccess;
+            }
+            throw new DeleteEntityException<Entity>(result.IsSuccess.ToString());
+        }
+
+        protected bool UnDeleteEntity(DetailDto dto)
+        {
+            var mapper = _mapperFactory.CreateMapperFromDetailDto();
+            var entity = mapper.Map<Entity>(dto);
+            if (entity is AuditableEntity)
+            {
+                (entity as AuditableEntity).DeletedBy = null;
+            }
+            var result = _crudRepo.UnDelete(entity);
+            if (result.IsSuccess == ResultType.OK)
+            {
+                _logger.Info($"{_type.Name} with ID = {result.ID} was undeleted.");
                 bool isSuccess = _uow.SaveChanges();
                 return isSuccess;
             }

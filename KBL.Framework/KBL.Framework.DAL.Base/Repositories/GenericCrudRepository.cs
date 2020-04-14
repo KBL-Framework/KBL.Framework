@@ -1,9 +1,6 @@
 ﻿using KBL.Framework.DAL.Interfaces.Entities;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
@@ -34,7 +31,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             _addProcedureName = $"[{schema}].[{procedureNamePattern.Replace("<Table>", tableName).Replace("<Action>", "Create").Replace("<Entity>", type)}]";
             _updateProcedureName = $"[{schema}].[{procedureNamePattern.Replace("<Table>", tableName).Replace("<Action>", "Update").Replace("<Entity>", type)}]";
             _deleteProcedureName = $"[{schema}].[{procedureNamePattern.Replace("<Table>", tableName).Replace("<Action>", "Delete").Replace("<Entity>", type)}]";
-        }        
+        }
         #endregion
     }
 }

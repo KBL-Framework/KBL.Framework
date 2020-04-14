@@ -1,9 +1,7 @@
 ﻿using KBL.Framework.DAL.Interfaces.Entities;
 using KBL.Framework.DAL.Interfaces.Queries;
-using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
 namespace KBL.Framework.DAL.Base.Queries
 {

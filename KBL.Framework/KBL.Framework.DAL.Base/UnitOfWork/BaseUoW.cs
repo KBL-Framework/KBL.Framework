@@ -1,15 +1,12 @@
 ﻿using KBL.Framework.DAL.Interfaces.Repositories;
 using KBL.Framework.DAL.Interfaces.UnitOfWork;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using NLog;
 using Polly;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Reflection;
-using System.Text;
 
 namespace KBL.Framework.DAL.Base.UnitOfWork
 {
@@ -137,7 +134,7 @@ namespace KBL.Framework.DAL.Base.UnitOfWork
             }
             if (_transaction == null || _transaction.Connection == null)
             {
-                if(string.IsNullOrEmpty(_configuration["KBL.Framework.DAL.Config:Transaction:IsolationLevel"]))
+                if (string.IsNullOrEmpty(_configuration["KBL.Framework.DAL.Config:Transaction:IsolationLevel"]))
                 {
                     _transaction = _connection.BeginTransaction();
                 }

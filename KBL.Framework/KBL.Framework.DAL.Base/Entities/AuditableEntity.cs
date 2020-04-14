@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace KBL.Framework.DAL.Base.Entities
+﻿namespace KBL.Framework.DAL.Base.Entities
 {
     public abstract class AuditableEntity : BaseEntity
     {

@@ -1,8 +1,5 @@
 ﻿using KBL.Framework.DAL.Interfaces.Entities;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
@@ -25,7 +22,7 @@ namespace KBL.Framework.DAL.Base.Repositories
 
         #region Private methods       
         protected override void SetQueries()
-        {            
+        {
         }
         #endregion
     }

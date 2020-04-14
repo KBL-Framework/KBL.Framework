@@ -1,18 +1,17 @@
-﻿using KBL.Framework.DAL.Base.Infrastructure;
+﻿using Dapper;
+using KBL.Framework.DAL.Base.Infrastructure;
 using KBL.Framework.DAL.Interfaces.Entities;
 using KBL.Framework.DAL.Interfaces.Infrastructure;
 using KBL.Framework.DAL.Interfaces.Queries;
 using KBL.Framework.DAL.Interfaces.Repositories;
-using Dapper;
 using Microsoft.Extensions.Configuration;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Polly;
 
 namespace KBL.Framework.DAL.Base.Repositories
 {
@@ -158,7 +157,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             {
                 _connection?.Close();
             }
-        }        
+        }
         #endregion
 
         #region Private methods
@@ -249,7 +248,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             IEnumerable<T> data = null;
             var (parms, query) = PrepareGetByKeyCommand(keyValue);
             using (_connection = new SqlConnection(_connectionString))
-            {                
+            {
                 data = _connection.Query<T>(query, parms, commandType: System.Data.CommandType.Text).ToList();
             }
             return data.ToList();

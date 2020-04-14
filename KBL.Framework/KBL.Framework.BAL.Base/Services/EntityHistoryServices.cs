@@ -1,18 +1,12 @@
 using KBL.ExceptionManager.Model.Exceptions;
 using KBL.Framework.BAL.Base.Entities;
 using KBL.Framework.BAL.Base.Infrastructures;
-using KBL.Framework.BAL.Interfaces.Services;
 using KBL.Framework.DAL.Base.Entities;
 using KBL.Framework.DAL.Base.Repositories.Implementations;
 using KBL.Framework.DAL.Interfaces.Entities;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KBL.Framework.BAL.Base.Services
 {
@@ -48,7 +42,7 @@ namespace KBL.Framework.BAL.Base.Services
                 {
                     EntityId = item.EntityId,
                     Timestamp = item.CreatedDateTime,
-                    OldValue = JsonConvert.DeserializeObject<T>(item.OldValue, new[] { new JsonKblConverter ()}),
+                    OldValue = JsonConvert.DeserializeObject<T>(item.OldValue, new[] { new JsonKblConverter() }),
                     NewValue = JsonConvert.DeserializeObject<T>(item.NewValue, new[] { new JsonKblConverter() })
                 };
                 dto.ChangedValues = GetChangedProperties<T>(dto.OldValue, dto.NewValue);

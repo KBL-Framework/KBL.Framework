@@ -1,7 +1,4 @@
 ﻿using KBL.Framework.BAL.Interfaces.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace KBL.Framework.BAL.Base.Entities
 {

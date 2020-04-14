@@ -3,11 +3,7 @@ using KBL.Framework.DAL.Base.Queries.Implementations;
 using KBL.Framework.DAL.Interfaces.Infrastructure;
 using KBL.Framework.DAL.Interfaces.Queries;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KBL.Framework.DAL.Base.Repositories.Implementations
 {

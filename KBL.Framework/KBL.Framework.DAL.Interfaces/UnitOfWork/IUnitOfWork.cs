@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace KBL.Framework.DAL.Interfaces.UnitOfWork
+﻿namespace KBL.Framework.DAL.Interfaces.UnitOfWork
 {
     public interface IUnitOfWork
     {
