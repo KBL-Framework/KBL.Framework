@@ -52,7 +52,7 @@ namespace KBL.Framework.DAL.Base.UnitOfWork
             try
             {
                 _logger.Debug($"Saving transaction");
-                if (_transaction == null)
+                if (_transaction == null || _transaction.Connection == null)
                 {
                     _logger.Debug($"Transaction is null. Creating new one.");
                     _transaction = GetTransaction();
