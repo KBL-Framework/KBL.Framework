@@ -14,5 +14,6 @@ namespace KBL.Framework.BAL.Interfaces.Services
         bool Delete(DetailDto dto, string deletedBy);
         DetailDto Get(long id);
         IEnumerable<GridDto> GetAll();
+        IEnumerable<GridDto> GetAllWithDeletes();
     }
 }
