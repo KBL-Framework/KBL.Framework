@@ -105,6 +105,20 @@ namespace KBL.Framework.BAL.Base.Services
             throw new GetEntityException<Entity>(result.IsSuccess.ToString());
         }
 
+        public virtual IEnumerable<GridDto> GetAllWithDeletes()
+        {
+            _logger.Debug($"Called GetAllWithDeletes() of {_type.Name}.");
+            var result = _queryRepo.GetAllWithDeletes();
+            if (result.IsSuccess == ResultType.OK)
+            {
+                var mapper = _mapperFactory.CreateMapperToGridDto();
+                var dtos = mapper.Map<IEnumerable<GridDto>>(result.ResultList);
+                _logger.Info($"All {_type.Name} returned.");
+                return dtos;
+            }
+            throw new GetEntityException<Entity>(result.IsSuccess.ToString());
+        }
+
         public virtual bool Update(DetailDto dto)
         {
             _logger.Debug($"Called Update{_type.Name}() with ID = {dto.ID}.");
