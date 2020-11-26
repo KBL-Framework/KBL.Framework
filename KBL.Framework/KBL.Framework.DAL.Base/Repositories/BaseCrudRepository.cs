@@ -6,6 +6,7 @@ using KBL.Framework.DAL.Interfaces.Infrastructure;
 using KBL.Framework.DAL.Interfaces.Repositories;
 using Microsoft.Extensions.Configuration;
 using Polly;
+using Polly.Retry;
 using System;
 using System.Data;
 using System.Data.SqlClient;
@@ -24,7 +25,7 @@ namespace KBL.Framework.DAL.Base.Repositories
         protected IDbTransaction _transaction;
         protected string _tableName;
         protected Policy _retryPolicy;
-        protected Policy _retryPolicyAsync;
+        protected AsyncRetryPolicy _retryPolicyAsync;
         #endregion
 
         #region Properties
