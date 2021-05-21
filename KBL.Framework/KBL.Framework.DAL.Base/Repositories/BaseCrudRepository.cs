@@ -293,17 +293,21 @@ namespace KBL.Framework.DAL.Base.Repositories
                 {
                     if (!propertyInfo.Name.ToLower().Equals("id") && !typeof(IEntity).GetProperties().Select(x => x.Name).Contains(propertyInfo.Name) && !typeof(AuditableEntity).GetProperties().Select(x => x.Name).Contains(propertyInfo.Name))
                     {
-                        var value = propertyInfo.GetValue(entity, null)?.ToString();
+                        var value = propertyInfo.GetValue(entity, null);
                         var type = propertyInfo.GetValue(entity, null)?.GetType();
                         if (type != null)
                         {
                             if (type.IsEnum)
                             {
-                                Enum test = Enum.Parse(type, value) as Enum;
-                                int x = Convert.ToInt32(test);
+                                Enum enumParsed = Enum.Parse(type, value?.ToString()) as Enum;
+                                int x = Convert.ToInt32(enumParsed);
                                 parameters.Add($"{_dbDialectForParameter}{propertyInfo.Name}", x, _typeMap[typeof(int)]);
                             }
                             else if (type.IsValueType || type == typeof(String))
+                            {
+                                parameters.Add($"{_dbDialectForParameter}{propertyInfo.Name}", value?.ToString(), _typeMap[type]);
+                            }
+                            else if (type.IsArray)
                             {
                                 parameters.Add($"{_dbDialectForParameter}{propertyInfo.Name}", value, _typeMap[type]);
                             }
