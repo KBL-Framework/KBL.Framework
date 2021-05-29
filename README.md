@@ -1,6 +1,8 @@
 # KBL.Framework
 Simple generic SOLID .NET Core 2.2+ architectural framework that will be CRUD and map for you.
 
+[![Nuget version (KBL.Framework)](https://img.shields.io/nuget/v/KBL.Framework)](https://www.nuget.org/packages/KBL.Framework) 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=KBL-Framework_KBL.Framework&metric=alert_status)](https://sonarcloud.io/dashboard?id=KBL-Framework_KBL.Framework)
 [![Build Status](https://travis-ci.org/KBL-Framework/KBL.Framework.svg?branch=master)](https://travis-ci.org/KBL-Framework/KBL.Framework)
 
 ___
