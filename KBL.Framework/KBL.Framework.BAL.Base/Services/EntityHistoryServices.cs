@@ -62,7 +62,7 @@ namespace KBL.Framework.BAL.Base.Services
             {
                 if (field?.GetValue(oldValue)?.Equals(field?.GetValue(newValue)) == false)
                 {
-                    result.Add(field.Name, new HistoryValueDto() { NewValue = field.GetValue(newValue).ToString(), OldValue = field.GetValue(oldValue).ToString() });
+                    result.Add(field.Name, new HistoryValueDto() { NewValue = field.GetValue(newValue)?.ToString(), OldValue = field.GetValue(oldValue)?.ToString() });
                 }
             }
             return result;
