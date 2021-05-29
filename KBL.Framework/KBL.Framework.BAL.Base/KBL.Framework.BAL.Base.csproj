@@ -5,7 +5,7 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <PackageId>KBL.Framework</PackageId>
-    <Version>2.2.1</Version>
+    <Version>2.3.0</Version>
     <Authors>KBL team</Authors>
     <Product>KBL.Framework</Product>
     <Description>Simple generic SOLID .NET Core 2.x architectural framework that will be CRUD and map for you.</Description>
