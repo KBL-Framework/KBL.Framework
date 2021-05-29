@@ -1,47 +1,65 @@
-name: Build
+name: .NET Core build and release Nuget
 on:
   push:
-    branches:
-      - master
-  pull_request:
-    types: [opened, synchronize, reopened]
+    tags:
+       - '*'
+env:
+  PROJECT_NAME: KBL.Framework
+  # GitHub Packages Feed settings
+  GITHUB_FEED: https://nuget.pkg.github.com/KBL-Framework/
+  GITHUB_USER: kubalunacek
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # Official NuGet Feed settings
+  NUGET_FEED: https://api.nuget.org/v3/index.json
+  NUGET_KEY: ${{ secrets.NUGET_KEY }}
 jobs:
   build:
-    name: Build
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
         with:
-          java-version: 1.11
+          dotnet-version: 5.0.x
+      - name: Restore
+        run: dotnet restore $PROJECT_NAME
+      - name: Build
+        run: dotnet build $PROJECT_NAME -c Release --no-restore
+      - name: Test
+        run: dotnet test $PROJECT_NAME -c Release
+      - name: Pack
+        run: dotnet pack -v normal -c Release --no-restore -p:PackageVersion=$GITHUB_RUN_ID $PROJECT_NAME/$PROJECT_NAME.BAL.Base/$PROJECT_NAME.BAL.Base.csproj
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: nupkg
+          path: ${{ env.PROJECT_NAME }}/bin/Release/*.nupkg
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v1
-        with:
-          path: ~\sonar\cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - name: Cache SonarCloud scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v1
-        with:
-          path: .\.sonar\scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-      - name: Install SonarCloud scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: powershell
+          dotnet-version: 5.0.x
+      - name: Create Release NuGet package
         run: |
-          New-Item -Path .\.sonar\scanner -ItemType Directory
-          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-      - name: Build and analyze
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        shell: powershell
+          echo ${GITHUB_REF}
+          echo ${GITHUB_REF//\// }
+          arrTag=(${GITHUB_REF//\// })
+          echo ${arrTag}
+          VERSION="${arrTag[2]}"
+          echo Version: $VERSION
+          VERSION="${VERSION//v}"
+          echo Clean Version: $VERSION
+          dotnet pack -v normal -c Release -p:PackageVersion=$VERSION -o nupkg $PROJECT_NAME/$PROJECT_NAME.BAL.Base/$PROJECT_NAME.BAL.Base.csproj
+      - name: Push to GitHub Feed
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"KBL-Framework_KBL.Framework" /o:"kbl-framework" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          dotnet build KBL.Framework
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          for f in ./nupkg/*.nupkg
+          do
+            curl -vX PUT -u "$GITHUB_USER:$GITHUB_TOKEN" -F package=@$f $GITHUB_FEED
+          done
+      - name: Push to NuGet Feed
+        run: dotnet nuget push ./nupkg/*.nupkg --source $NUGET_FEED --skip-duplicate --api-key $NUGET_KEY
