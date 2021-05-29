@@ -37,21 +37,4 @@
       <HintPath>..\..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.hosting.abstractions\2.1.1\lib\netstandard2.0\Microsoft.AspNetCore.Hosting.Abstractions.dll</HintPath>
     </Reference>
   </ItemGroup>
-
-    <!--<Target Name="MyCustomizePacking" Returns="@(NuGetPackInput);@(_BuildOutputInPackage);@(_TargetPathsToSymbols)">
-    <ItemGroup>
-        <NuGetPackInput Remove="@(BuiltProjectOutputGroupKeyOutput);@(DebugSymbolsProjectOutputGroupOutput)"/>
-        <_BuildOutputInPackage Remove="@(BuiltProjectOutputGroupKeyOutput)"/>
-        <_TargetPathsToSymbols Remove="@(DebugSymbolsProjectOutputGroupOutput)"/>
-
-        <NuGetPackInput Include="@(ReferenceCopyLocalPaths);@(AllItemsFullPathWithTargetPath)" />
-        <_BuildOutputInPackage Include="%(ReferenceCopyLocalPaths.Identity)" >
-            <TargetFramework>$(TargetFramework)</TargetFramework>
-        </_BuildOutputInPackage>
-        <_BuildOutputInPackage Include="%(AllItemsFullPathWithTargetPath.Identity)" >
-            <TargetFramework>$(TargetFramework)</TargetFramework>
-        </_BuildOutputInPackage>
-    </ItemGroup>
-    </Target>-->
-
 </Project>
