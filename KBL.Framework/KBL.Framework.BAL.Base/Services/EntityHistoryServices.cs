@@ -54,7 +54,7 @@ namespace KBL.Framework.BAL.Base.Services
         #endregion
 
         #region Private methods
-        private IDictionary<string, HistoryValueDto> GetChangedProperties<T>(T oldValue, T newValue)
+        private static IDictionary<string, HistoryValueDto> GetChangedProperties<T>(T oldValue, T newValue)
         {
             var result = new Dictionary<string, HistoryValueDto>();
             var fields = typeof(T).GetProperties();
