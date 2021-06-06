@@ -21,9 +21,8 @@ namespace KBL.Framework.DAL.Base.Repositories
         #region Fields        
         protected IDbConnection _connection;
         protected string _tableName = "";
-        protected IDictionary<string, IQuery<T>> _storedQueries;
-        protected IDictionary<string, IQueryAsync<T>> _asyncStoredQueries;
-        //protected string _connectionString;
+        protected IDictionary<string, IQuery<IEnumerable<T>>> _storedQueries;
+        protected IDictionary<string, IQueryAsync<IEnumerable<T>>> _asyncStoredQueries;
         protected string _keyColumnName = "";
         protected Policy _retryPolicy;
         protected AsyncRetryPolicy _retryPolicyAsync;

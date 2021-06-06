@@ -34,7 +34,7 @@ namespace KBL.Framework.DAL.Base.Repositories.Implementations
         #region Private methods
         protected override void SetQueries()
         {
-            _storedQueries = new Dictionary<string, IQuery<AuditEntity>>()
+            _storedQueries = new Dictionary<string, IQuery<IEnumerable<AuditEntity>>>()
             {
                 { nameof(GetEntityHistory), new GetEntityHistory()}
             };
