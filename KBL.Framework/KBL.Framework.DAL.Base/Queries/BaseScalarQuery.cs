@@ -1,16 +1,14 @@
-﻿using KBL.Framework.DAL.Interfaces.Entities;
-using KBL.Framework.DAL.Interfaces.Queries;
+﻿using KBL.Framework.DAL.Interfaces.Queries;
 using System.Collections.Generic;
 using System.Data;
-using System.Threading.Tasks;
 
 namespace KBL.Framework.DAL.Base.Queries
 {
     /// <summary>
-    /// Async query for return IEnumerable T result
+    /// Scalar query for return T result
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class BaseQueryAsync<T> : IQueryAsync<IEnumerable<T>> where T : IEntity
+    public abstract class BaseScalarQuery<T> : IQuery<T> where T : class
     {
         #region Fields
         #endregion
@@ -21,7 +19,7 @@ namespace KBL.Framework.DAL.Base.Queries
         #endregion
 
         #region Cstors
-        protected BaseQueryAsync(string name)
+        protected BaseScalarQuery(string name)
         {
             Name = name;
             NeedfulParameters = new Dictionary<string, string>();
@@ -30,7 +28,7 @@ namespace KBL.Framework.DAL.Base.Queries
         #endregion
 
         #region Public methods
-        public async Task<IEnumerable<T>> ExecuteAsync(IDictionary<string, object> parameters, IDbConnection connection)
+        public T Execute(IDictionary<string, object> parameters, IDbConnection connection)
         {
             foreach (var item in NeedfulParameters.Keys)
             {
@@ -39,14 +37,13 @@ namespace KBL.Framework.DAL.Base.Queries
                     throw new KeyNotFoundException($"Key {item} in parameters collection not found!");
                 }
             }
-            return await ProceedExecuteAsync(parameters, connection).ConfigureAwait(false);
+            return ProceedExecute(parameters, connection);
         }
         #endregion
 
         #region Private methods
-        protected abstract Task<IEnumerable<T>> ProceedExecuteAsync(IDictionary<string, object> parameters, IDbConnection connection);
+        protected abstract T ProceedExecute(IDictionary<string, object> parameters, IDbConnection connection);
         protected abstract void InitializeParameters();
         #endregion
-
     }
 }

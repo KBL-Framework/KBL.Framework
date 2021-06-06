@@ -5,7 +5,11 @@ using System.Data;
 
 namespace KBL.Framework.DAL.Base.Queries
 {
-    public abstract class BaseQuery<T> : IQuery<T> where T : IEntity
+    /// <summary>
+    /// Query for return IEnumerable T result
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class BaseQuery<T> : IQuery<IEnumerable<T>> where T : IEntity
     {
         #region Fields
 
@@ -17,7 +21,7 @@ namespace KBL.Framework.DAL.Base.Queries
         #endregion
 
         #region Cstors
-        public BaseQuery(string name)
+        protected BaseQuery(string name)
         {
             Name = name;
             NeedfulParameters = new Dictionary<string, string>();
