@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <Import Project="WalkEachTargetPerProject.targets" />
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>netstandard2.1;net5.0</TargetFrameworks>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <PackageId>KBL.Framework</PackageId>
-    <Version>2.3.0</Version>
+    <Version>2.3.1</Version>
     <Authors>KBL team</Authors>
     <Product>KBL.Framework</Product>
     <Description>Simple generic SOLID .NET Core 2.x architectural framework that will be CRUD and map for you.</Description>
@@ -19,11 +19,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="KBL.ExceptionManager" Version="0.9.7" />
+    <PackageReference Include="KBL.ExceptionManager" Version="0.10.1" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog" Version="4.7.10" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="1.7.2" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.7.3" />
   </ItemGroup>
 
   <ItemGroup>
