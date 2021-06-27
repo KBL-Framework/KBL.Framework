@@ -4,7 +4,7 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <PackageId>KBL.Framework</PackageId>
-    <Version>2.3.2</Version>
+    <Version>2.3.3</Version>
     <Authors>KBL team</Authors>
     <Product>KBL.Framework</Product>
     <Description>Simple generic SOLID .NET Core 2.x architectural framework that will be CRUD and map for you.</Description>
@@ -25,16 +25,29 @@
   </Target>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="KBL.ExceptionManager" Version="0.10.1" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog" Version="4.7.10" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.7.3" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />     
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KBL.Framework.BAL.Interfaces\KBL.Framework.BAL.Interfaces.csproj" />
-    <ProjectReference Include="..\KBL.Framework.DAL.Base\KBL.Framework.DAL.Base.csproj" />
-    <ProjectReference Include="..\KBL.Framework.DAL.Interfaces\KBL.Framework.DAL.Interfaces.csproj" />
+    <ProjectReference Include="..\KBL.Framework.BAL.Interfaces\KBL.Framework.BAL.Interfaces.csproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <IncludeAssets>KBL.Framework.BAL.Interfaces.dll</IncludeAssets>
+    </ProjectReference>
+
+    <ProjectReference Include="..\KBL.Framework.DAL.Base\KBL.Framework.DAL.Base.csproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <IncludeAssets>KBL.Framework.DAL.Base.dll</IncludeAssets>
+    </ProjectReference>
+
+    <ProjectReference Include="..\KBL.Framework.DAL.Interfaces\KBL.Framework.DAL.Interfaces.csproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <IncludeAssets>KBL.Framework.DAL.Interfaces.dll</IncludeAssets>
+    </ProjectReference>     
   </ItemGroup>
 </Project>
