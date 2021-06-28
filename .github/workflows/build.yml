@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: nupkg
-          path: ${{ env.PROJECT_NAME }}/bin/Release/*.nupkg
+          path: $PROJECT_NAME/$PROJECT_NAME.BAL.Base/bin/Release/*.nupkg
   deploy:
     needs: build
     runs-on: ubuntu-latest
