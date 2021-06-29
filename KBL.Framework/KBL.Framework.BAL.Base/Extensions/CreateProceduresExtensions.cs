@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-//using Microsoft.DotNet.PlatformAbstractions;
 using Microsoft.Extensions.Configuration;
 using NLog;
 using System;
@@ -19,7 +17,6 @@ namespace KBL.Framework.BAL.Base.Extensions
         private static string _connectionString;
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private static IConfiguration _configuration;
-        private static IHostingEnvironment _env;
 
         private static readonly string ROOT_CONFIG_PATH = "KBL.Framework.DAL.Config";
         private static string _procedureSchema;
@@ -40,9 +37,8 @@ namespace KBL.Framework.BAL.Base.Extensions
         #endregion
 
         #region Public methods
-        public static IApplicationBuilder UseCreateProceduresForMssql(this IApplicationBuilder builder, IConfiguration configuration, IHostingEnvironment hostingEnvironment)
+        public static IApplicationBuilder UseCreateProceduresForMssql(this IApplicationBuilder builder, IConfiguration configuration)
         {
-            _env = hostingEnvironment;
             AssignFields(configuration);
             CreateProcedures();
             return builder;
