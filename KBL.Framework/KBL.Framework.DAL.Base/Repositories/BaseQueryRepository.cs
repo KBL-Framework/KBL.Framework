@@ -23,7 +23,6 @@ namespace KBL.Framework.DAL.Base.Repositories
         protected string _tableName = "";
         protected IDictionary<string, IQuery<T>> _storedQueries;
         protected IDictionary<string, IQueryAsync<T>> _asyncStoredQueries;
-        //protected string _connectionString;
         protected string _keyColumnName = "";
         protected Policy _retryPolicy;
         protected AsyncRetryPolicy _retryPolicyAsync;
@@ -89,7 +88,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             {
                 if (!_storedQueries.ContainsKey(storedQueryName))
                 {
-                    throw new IndexOutOfRangeException("Stored query dont existst for this repo.");
+                    throw new IndexOutOfRangeException($"Stored query {storedQueryName} dont existst for this repo.");
                 }
 
                 IEnumerable<T> data = _retryPolicy.Execute(() => ExecuteQuery(storedQueryName, parameters));
@@ -97,7 +96,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Error on GetByQuery() for table {_tableName}, storedQuery name is {_tableName}");
+                _logger.Error(ex, $"Error on GetByQuery() for table {_tableName}, storedQuery name is {storedQueryName}");
                 return new QueryResult<T>(ResultType.Error, null);
             }
             finally
@@ -142,16 +141,16 @@ namespace KBL.Framework.DAL.Base.Repositories
         {
             try
             {
-                if (!_storedQueries.ContainsKey(storedQueryName))
+                if (!_asyncStoredQueries.ContainsKey(storedQueryName))
                 {
-                    throw new IndexOutOfRangeException("Stored query dont existst for this repo.");
+                    throw new IndexOutOfRangeException($"Async stored query {storedQueryName} dont existst for this repo.");
                 }
                 IEnumerable<T> data = await _retryPolicyAsync.ExecuteAsync(async () => await ExecuteQueryAsync(storedQueryName, parameters).ConfigureAwait(false)).ConfigureAwait(false);
                 return HandleResult(data);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Error on GetByQuery() for table {_tableName}, storedQuery name is {_tableName}");
+                _logger.Error(ex, $"Error on GetByQuery() for table {_tableName}, storedQuery name is {storedQueryName}");
                 return new QueryResult<T>(ResultType.Error, null);
             }
             finally
@@ -168,7 +167,7 @@ namespace KBL.Framework.DAL.Base.Repositories
         {
             try
             {
-                IEnumerable<T> data = _retryPolicy.Execute(() => ExecuteGetAllCommand(includeDeletes));//ExecuteGetAllCommand(includeDeletes);
+                IEnumerable<T> data = _retryPolicy.Execute(() => ExecuteGetAllCommand(includeDeletes));
                 return HandleResult(data);
             }
             catch (Exception ex)
@@ -202,7 +201,7 @@ namespace KBL.Framework.DAL.Base.Repositories
 
         private static IQueryResult<T> HandleResult(IEnumerable<T> data)
         {
-            ResultType resultValue = default(ResultType);
+            ResultType resultValue;
             if (data != null)
             {
                 resultValue = ResultType.OK;
@@ -250,7 +249,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             var (parms, query) = PrepareGetByKeyCommand(keyValue);
             using (_connection = new SqlConnection(_connectionString))
             {
-                data = _connection.Query<T>(query, parms, commandType: System.Data.CommandType.Text).ToList();
+                data = _connection.Query<T>(query, parms, commandType: CommandType.Text).ToList();
             }
             return data.ToList();
         }
@@ -269,7 +268,7 @@ namespace KBL.Framework.DAL.Base.Repositories
             var (parms, query) = PrepareGetByKeyCommand(keyValue);
             using (_connection = new SqlConnection(_connectionString))
             {
-                data = await _connection.QueryAsync<T>(query, parms, commandType: System.Data.CommandType.Text).ConfigureAwait(false);
+                data = await _connection.QueryAsync<T>(query, parms, commandType: CommandType.Text).ConfigureAwait(false);
             }
             return data.ToList();
         }
@@ -291,6 +290,7 @@ namespace KBL.Framework.DAL.Base.Repositories
 
             return data;
         }
+
         protected async Task<IEnumerable<T>> ExecuteQueryAsync(string storedQueryName, IDictionary<string, object> parameters)
         {
             IEnumerable<T> data;
