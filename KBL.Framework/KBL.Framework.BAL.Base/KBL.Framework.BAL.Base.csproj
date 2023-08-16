@@ -4,12 +4,12 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <PackageId>KBL.Framework</PackageId>
-    <Version>2.3.3</Version>
+    <Version>2.3.4</Version>
     <Authors>KBL team</Authors>
     <Product>KBL.Framework</Product>
-    <Description>Simple generic SOLID .NET Core 2.x architectural framework that will be CRUD and map for you.</Description>
+    <Description>Simple generic SOLID netstandard2.1 architectural framework that will be CRUD and map for you.</Description>
     <PackageReleaseNotes>Cumulative update - some repairs and updates.</PackageReleaseNotes>
-    <Copyright>Copyright 2018-2019 (c) KBL.codes. All rights reserved.</Copyright>
+    <Copyright>Copyright 2018-2023 (c) KBL.codes. All rights reserved.</Copyright>
     <PackageProjectUrl>https://github.com/KBL-Framework/KBL.Framework</PackageProjectUrl>
     <RepositoryUrl>https://github.com/KBL-Framework/KBL.Framework.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
